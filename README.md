@@ -1,1 +1,1 @@
-# WEEGY
+# WEEGI
