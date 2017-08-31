@@ -23,7 +23,8 @@
         android:layout_marginEnd="8dp"
         app:layout_constraintVertical_bias="0.016" />
 
-    <Spinner
+
+    <!--<Spinner
         android:id="@+id/SourceSpinner"
         android:layout_width="344dp"
         android:layout_height="wrap_content"
@@ -35,6 +36,6 @@
         app:layout_constraintRight_toRightOf="parent"
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp" />
+        android:layout_marginEnd="8dp" />-->
 
 </android.support.constraint.ConstraintLayout>

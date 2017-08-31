@@ -23,17 +23,5 @@
         android:layout_marginEnd="8dp"
         app:layout_constraintVertical_bias="0.016" />
 
-    <Spinner
-        android:id="@+id/SourceSpinner"
-        android:layout_width="344dp"
-        android:layout_height="wrap_content"
-        android:background="@android:drawable/btn_dropdown"
-        android:spinnerMode="dropdown"
-        app:layout_constraintTop_toBottomOf="@+id/SourceSpinnerLbl"
-        app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_marginRight="8dp"
-        app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginLeft="8dp" />
-
 
 </android.support.constraint.ConstraintLayout>
