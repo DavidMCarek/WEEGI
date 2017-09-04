@@ -7,10 +7,10 @@
     tools:context="com.sd1.weegy.MainActivity">
 
     <TextView
-        android:id="@+id/SourceSpinnerLbl"
-        android:layout_width="132dp"
+        android:id="@+id/fileLbl"
+        android:layout_width="200dp"
         android:layout_height="23dp"
-        android:text="Please Select Source"
+        android:text="Please Select Your Files"
         android:layout_marginRight="8dp"
         app:layout_constraintRight_toRightOf="parent"
         android:layout_marginLeft="8dp"
@@ -23,19 +23,15 @@
         android:layout_marginEnd="8dp"
         app:layout_constraintVertical_bias="0.016" />
 
-
-    <!--<Spinner
+    <RadioGroup
         android:id="@+id/SourceSpinner"
         android:layout_width="344dp"
         android:layout_height="wrap_content"
-        android:background="@android:drawable/btn_dropdown"
-        android:spinnerMode="dropdown"
-        app:layout_constraintTop_toBottomOf="@+id/SourceSpinnerLbl"
+        app:layout_constraintTop_toBottomOf="@+id/fileLbl"
         app:layout_constraintLeft_toLeftOf="parent"
         android:layout_marginRight="8dp"
         app:layout_constraintRight_toRightOf="parent"
         android:layout_marginLeft="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp" />-->
+        />
 
 </android.support.constraint.ConstraintLayout>
