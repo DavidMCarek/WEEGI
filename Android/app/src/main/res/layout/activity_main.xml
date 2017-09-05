@@ -31,7 +31,7 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:text="Please ensure the head unit is turned on"
-        android:textColor=""
+        android:textColor="#757575"
         android:layout_width="250dp"
         android:layout_marginRight="8dp"
         app:layout_constraintRight_toRightOf="@+id/mainHeaderTxt"

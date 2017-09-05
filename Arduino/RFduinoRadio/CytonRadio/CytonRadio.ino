@@ -8,9 +8,10 @@ void setup() {
   pinMode(LED, OUTPUT);
 
   // radio config
-  RFduinoBLE.deviceName = "Cyton";
+  RFduinoBLE.deviceName = "WEEGi";
   RFduinoBLE.advertisementInterval = 500;
   RFduinoBLE.txPowerLevel = -8;
+  RFduinoBLE.advertisementData = "cyton";
   Serial.begin(9600);
 
   RFduinoBLE.begin();
