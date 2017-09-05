@@ -1,8 +1,6 @@
 #include <RFduinoBLE.h>
 
 const int LED = 2;
-char* msgA = "a received";
-char* msgB = "b received";
 
 void setup() {
   pinMode(LED, OUTPUT);
@@ -29,16 +27,41 @@ void RFduinoBLE_onDisconnect() {
   digitalWrite(LED, LOW); 
 }
 
-void RFduinoBLE_onReceive(char *data, int len) {
-  char b0;
-  
-  if (len > 0)
-    b0 = data[0];
+void StartRecording() {
+  return;
+}
 
-  if (b0 == 'a')
-   RFduinoBLE.send(msgA, 10);
-  
-  if (b0 == 'b')
-   RFduinoBLE.send(msgB, 10);
+void StopRecording() {
+  return;
+}
+
+void GetFileList(char(*filename)[] files) {
+
+
+}
+
+
+void RFduinoBLE_onReceive(char *data, int len) {
+  if (len < 1)
+    return;
+
+  if (len == 1) {
+    switch (data[0]) {
+    case '0': 
+      StartRecording();
+      break;
+    case '1':
+      StopRecording();
+      break;
+    case '2':
+      GetFileList();
+      break;
+    default:
+      return;  
+    }
+  }
+  else if (len > 1) {
+    TransmitFile();
+  }
 }
 
