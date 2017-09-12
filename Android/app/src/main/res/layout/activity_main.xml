@@ -1,62 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.sd1.weegy.MainActivity">
+    android:fitsSystemWindows="true"
+    android:background="@color/backgroundPrimary"
+    tools:context="com.sd1.weegi.MainActivity">
 
 
-
-    <TextView
-        android:id="@+id/mainHeaderTxt"
-        android:layout_width="250dp"
-        android:layout_height="40dp"
-        android:textSize="20sp"
-        android:text="Wireless EEG Interface"
-        android:layout_marginRight="8dp"
-        app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginLeft="8dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        app:layout_constraintVertical_bias="0.016" />
-
-    <TextView
-        android:id="@+id/instructionTxt"
+    <Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ems="10"
-        android:text="Please ensure the head unit is turned on"
-        android:textColor="#757575"
-        android:layout_width="250dp"
-        android:layout_marginRight="8dp"
-        app:layout_constraintRight_toRightOf="@+id/mainHeaderTxt"
-        android:layout_marginLeft="8dp"
-        app:layout_constraintLeft_toLeftOf="@+id/mainHeaderTxt"
-        app:layout_constraintBottom_toBottomOf="@+id/mainHeaderTxt"
-        android:layout_marginBottom="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        app:layout_constraintTop_toBottomOf="@+id/mainHeaderTxt" />
+        android:background="@color/colorPrimary"
+        android:contentInsetLeft="0dp"
+        android:contentInsetStart="0dp"
+        android:contentInsetRight="0dp"
+        android:contentInsetEnd="0dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:paddingLeft="5dp"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:text="@string/app_name"/>
+
+    </Toolbar>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:id="@+id/main_fragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/toolbar"/>
 
 
-    <!--<Spinner
-        android:id="@+id/SourceSpinner"
-        android:layout_width="344dp"
-        android:layout_height="wrap_content"
-        android:background="@android:drawable/btn_dropdown"
-        android:spinnerMode="dropdown"
-        app:layout_constraintTop_toBottomOf="@+id/SourceSpinnerLbl"
-        app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_marginRight="8dp"
-        app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginLeft="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp" />-->
-
-</android.support.constraint.ConstraintLayout>
+</RelativeLayout>

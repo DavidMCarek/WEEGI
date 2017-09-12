@@ -1,4 +1,4 @@
-package com.sd1.weegy;
+package com.sd1.weegi;
 
 import android.app.Activity;
 import android.content.Intent;
