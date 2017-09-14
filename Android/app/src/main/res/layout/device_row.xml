@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:clickable="false"
+    android:descendantFocusability="blocksDescendants"
+    android:focusable="false"
+    android:focusableInTouchMode="false"
+    android:padding="10dp">
+
+    <TextView android:id="@+id/ble_row_title"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:clickable="false"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:textSize="@dimen/primary_font_size"
+        android:textStyle="bold"
+        android:text="Title"/>
+
+    <ProgressBar android:id="@+id/ble_row_rssi"
+        android:layout_height="wrap_content"
+        android:layout_width="100dp"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        android:clickable="false"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:progress="22"
+        android:max="100"/>
+
+    <TextView android:id="@+id/ble_row_mac_address"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_below="@id/ble_row_title"
+        android:layout_alignParentLeft="true"
+        android:clickable="false"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:text="01:23:45:67:AB:CD:EF"/>
+</RelativeLayout>
