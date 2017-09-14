@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">WEEGI</string>
+    <string name="app_name">WEEGi</string>
+    <string name="side_drawer">side drawer</string>
 </resources>
