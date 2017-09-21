@@ -2,6 +2,7 @@ package com.sd1.weegi.fragments;
 
 import android.app.ListFragment;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,11 +13,11 @@ import android.widget.Toast;
 import com.polidea.rxandroidble.RxBleClient;
 import com.polidea.rxandroidble.exceptions.BleScanException;
 import com.polidea.rxandroidble.scan.ScanResult;
-import com.polidea.rxandroidble.scan.ScanSettings;
 import com.sd1.weegi.MainApplication;
 import com.sd1.weegi.R;
+import com.sd1.weegi.Utils.BleUtil;
+import com.sd1.weegi.ViewModels.ScanResultViewModel;
 import com.sd1.weegi.adapters.DeviceListAdapter;
-import com.sd1.weegi.wrappers.ScanResultWrapper;
 
 import javax.inject.Inject;
 
@@ -24,7 +25,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
 
 /**
  * Created by DMCar on 9/14/2017.
@@ -40,15 +40,21 @@ public class ScannerFragment extends ListFragment {
 
     Unbinder mUnBinder;
 
-    private static final long DEVICE_UPDATE_TIME_NANOS = 1000000000L;
-    private static final long DEVICE_REMOVAL_TIME_NANOS = DEVICE_UPDATE_TIME_NANOS * 20L;
+    private static final long DEVICE_UPDATE_TIME_MILLIS = 1000L;
+    private static final long DEVICE_REMOVAL_TIME_MILLIS = 20000L;
+    private static final long UPDATE_LIST_TIME_MILLIS = 3000L;
 
     private Subscription mScanSubscription;
     private DeviceListAdapter mAdapter;
+    private Handler mListHandler;
+    private Runnable mRemoveExpiredDevicesTimer;
+    private boolean mUpdatingList;
 
     public static ScannerFragment newInstance() {
         Bundle args = new Bundle();
+
         ScannerFragment fragment = new ScannerFragment();
+
         fragment.setArguments(args);
         return fragment;
     }
@@ -72,14 +78,23 @@ public class ScannerFragment extends ListFragment {
     @Override
     public void onStart() {
         super.onStart();
-        mScanSubscription = mRxBleClient.scanBleDevices(
-                new ScanSettings.Builder()
-                        .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
-                        .build()
-        )
-                .doOnUnsubscribe(() -> mScanSubscription = null)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::updateScanResults, this::onScanFailure);
+        mScanSubscription = BleUtil.setupScanSubscription(mRxBleClient, this::updateScanResults, this::onScanFailure);
+        setupDeviceRemovalTimer();
+    }
+
+    private void setupDeviceRemovalTimer() {
+        mListHandler = new Handler();
+        mRemoveExpiredDevicesTimer = new Runnable() {
+            @Override
+            public void run() {
+                if (!mUpdatingList && removeExpiredDevices())
+                    mAdapter.notifyDataSetChanged();
+
+                mListHandler.postDelayed(this, UPDATE_LIST_TIME_MILLIS);
+            }
+        };
+
+        mListHandler.postDelayed(mRemoveExpiredDevicesTimer,  UPDATE_LIST_TIME_MILLIS);
     }
 
     private void onScanFailure(Throwable throwable) {
@@ -111,7 +126,9 @@ public class ScannerFragment extends ListFragment {
     }
 
     private void updateScanResults(ScanResult scanResult) {
-        ScanResultWrapper result = new ScanResultWrapper(scanResult);
+        mUpdatingList = true;
+
+        ScanResultViewModel result = new ScanResultViewModel(scanResult);
         boolean dataChange = false;
 
         int position = mAdapter.getPosition(result);
@@ -121,32 +138,32 @@ public class ScannerFragment extends ListFragment {
             mProgressSpinner.setVisibility(View.GONE);
         }
         else {
-            ScanResultWrapper item = mAdapter.getItem(position);
+            ScanResultViewModel item = mAdapter.getItem(position);
             assert item != null;
-            if (item.elapsedTimeNanos() > DEVICE_UPDATE_TIME_NANOS) {
-                item = result;
+            if (item.timeSinceUpdateMillis() > DEVICE_UPDATE_TIME_MILLIS) {
+                item.setLastUpdateTime();
+                item.setRssiPercent(result.getRssiPercent());
                 dataChange = true;
             }
         }
-
-        mAdapter.sort((lhs, rhs) -> -Integer.compare(lhs.getRssi(), rhs.getRssi()));
-
-        dataChange |= removeExpiredDevices();
 
         if (dataChange) {
             mAdapter.notifyDataSetChanged();
         }
 
+        mUpdatingList = false;
     }
 
     private boolean removeExpiredDevices() {
         boolean dataChange = false;
-
-        for (int i = 0; i < mAdapter.getCount(); i++) {
-            ScanResultWrapper item = mAdapter.getItem(i);
+        int adapterCount = mAdapter.getCount();
+        for (int i = 0; i < adapterCount; i++) {
+            ScanResultViewModel item = mAdapter.getItem(i);
             assert item != null;
-            if (item.elapsedTimeNanos() > DEVICE_REMOVAL_TIME_NANOS) {
+            if (item.timeSinceUpdateMillis() > DEVICE_REMOVAL_TIME_MILLIS) {
                 mAdapter.remove(mAdapter.getItem(i));
+                i--;
+                adapterCount--;
                 dataChange = true;
             }
         }
@@ -165,6 +182,7 @@ public class ScannerFragment extends ListFragment {
     @Override
     public void onStop() {
         super.onStop();
+        mListHandler.removeCallbacks(mRemoveExpiredDevicesTimer);
         mScanSubscription.unsubscribe();
     }
 

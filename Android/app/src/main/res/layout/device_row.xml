@@ -9,7 +9,7 @@
     android:focusableInTouchMode="false"
     android:padding="20dp">
 
-    <TextView android:id="@+id/ble_row_title"
+    <TextView android:id="@+id/row_title"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         android:layout_alignParentTop="true"
@@ -22,7 +22,7 @@
         android:textColor="@android:color/black"
         android:text="Title"/>
 
-    <ProgressBar android:id="@+id/ble_row_rssi"
+    <ProgressBar android:id="@+id/row_rssi"
         android:layout_height="wrap_content"
         android:layout_width="100dp"
         style="?android:attr/progressBarStyleHorizontal"
@@ -34,10 +34,10 @@
         android:progress="22"
         android:max="100"/>
 
-    <TextView android:id="@+id/ble_row_mac_address"
+    <TextView android:id="@+id/row_mac_address"
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
-        android:layout_below="@id/ble_row_title"
+        android:layout_below="@id/row_title"
         android:layout_alignParentLeft="true"
         android:clickable="false"
         android:focusable="false"
