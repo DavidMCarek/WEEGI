@@ -1,39 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
+<android.support.v4.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/navigation_drawer"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    tools:context="com.sd1.weegi.MainActivity">
-
-    <Toolbar
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/toolbar_height">
-
-        <android.widget.ImageButton
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:src="@drawable/ic_menu"
-            android:color="@android:color/transparent"
-            android:background="@android:color/transparent"/>
-
-        <TextView
-            android:paddingLeft="25dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/app_name"
-            android:textSize="@dimen/primary_font_size"
-            android:textColor="@android:color/white"
-            android:textStyle="bold"
-            />
-
-    </Toolbar>
+    android:layout_width="match_parent"
+    android:fitsSystemWindows="true">
 
     <LinearLayout
         android:orientation="vertical"
-        android:id="@+id/main_fragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true">
 
-</LinearLayout>
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/toolbar_height"
+            android:minHeight="?attr/actionBarSize"
+            android:background="@color/primary"/>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:id="@+id/main_fragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/left_drawer"
+        android:layout_width="280dp"
+        android:layout_height="match_parent"
+        android:choiceMode="singleChoice"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="0dp"
+        android:background="@color/backgroundPrimary"
+        android:layout_gravity="start"/>
+
+</android.support.v4.widget.DrawerLayout>
+
