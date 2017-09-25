@@ -1,4 +1,12 @@
 <resources>
     <string name="app_name">WEEGi</string>
     <string name="side_drawer">side drawer</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+
+    <string name="devices">Devices</string>
+    <string name="upload_to_server">Upload to Server</string>
 </resources>
