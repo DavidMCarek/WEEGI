@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import com.polidea.rxandroidble.RxBleDevice;
 import com.sd1.weegi.R;
-import com.sd1.weegi.ViewModels.ScanResultViewModel;
+import com.sd1.weegi.viewmodels.ScanResultViewModel;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

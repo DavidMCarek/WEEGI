@@ -1,4 +1,4 @@
-package com.sd1.weegi.Utils;
+package com.sd1.weegi.utils;
 
 import android.util.Log;
 

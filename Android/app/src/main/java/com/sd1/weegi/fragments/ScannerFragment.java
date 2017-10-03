@@ -15,8 +15,8 @@ import com.polidea.rxandroidble.exceptions.BleScanException;
 import com.polidea.rxandroidble.scan.ScanResult;
 import com.sd1.weegi.MainApplication;
 import com.sd1.weegi.R;
-import com.sd1.weegi.Utils.BleUtil;
-import com.sd1.weegi.ViewModels.ScanResultViewModel;
+import com.sd1.weegi.utils.BleUtil;
+import com.sd1.weegi.viewmodels.ScanResultViewModel;
 import com.sd1.weegi.adapters.DeviceListAdapter;
 
 import javax.inject.Inject;

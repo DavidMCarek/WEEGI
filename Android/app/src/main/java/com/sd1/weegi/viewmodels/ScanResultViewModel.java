@@ -1,4 +1,4 @@
-package com.sd1.weegi.ViewModels;
+package com.sd1.weegi.viewmodels;
 
 import com.polidea.rxandroidble.RxBleDevice;
 import com.polidea.rxandroidble.scan.ScanResult;

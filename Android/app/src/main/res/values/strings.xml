@@ -9,4 +9,6 @@
 
     <string name="devices">Devices</string>
     <string name="upload_to_server">Upload to Server</string>
+    <string name="nav_drawer_text">Wireless EEG Interface</string>
+    <string name="senior_design_project">Senior Design Project</string>
 </resources>
