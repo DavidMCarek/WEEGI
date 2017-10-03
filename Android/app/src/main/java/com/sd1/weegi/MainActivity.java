@@ -19,6 +19,7 @@ import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.polidea.rxandroidble.RxBleClient;
+import com.sd1.weegi.fragments.DeviceConnectedFragment;
 import com.sd1.weegi.fragments.ScannerFragment;
 
 import javax.inject.Inject;
@@ -62,6 +63,7 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        navigationView.setCheckedItem(R.id.nav_devices);
 
         requestPermissions(PERMISSIONS, REQUEST_PERMISSIONS);
     }
@@ -78,24 +80,23 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (id == R.id.nav_devices) {
+            showScanFragment();
+        } else if (id == R.id.nav_files) {
+
         }
 
-        return super.onOptionsItemSelected(item);
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -160,6 +161,14 @@ public class MainActivity extends AppCompatActivity
         getFragmentManager()
                 .beginTransaction()
                 .replace(R.id.main_fragment, ScannerFragment.newInstance())
+                .commitAllowingStateLoss();
+    }
+
+    public void showDeviceConnectedFragment(String macAddress) {
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        getFragmentManager()
+                .beginTransaction()
+                .replace(R.id.main_fragment, DeviceConnectedFragment.newInstance(macAddress))
                 .commitAllowingStateLoss();
     }
 }

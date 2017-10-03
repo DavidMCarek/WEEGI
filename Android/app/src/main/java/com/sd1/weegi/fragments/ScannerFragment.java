@@ -11,8 +11,10 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.polidea.rxandroidble.RxBleClient;
+import com.polidea.rxandroidble.RxBleDevice;
 import com.polidea.rxandroidble.exceptions.BleScanException;
 import com.polidea.rxandroidble.scan.ScanResult;
+import com.sd1.weegi.MainActivity;
 import com.sd1.weegi.MainApplication;
 import com.sd1.weegi.R;
 import com.sd1.weegi.utils.BleUtil;
@@ -176,7 +178,8 @@ public class ScannerFragment extends ListFragment {
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-
+        RxBleDevice d = ((DeviceListAdapter.ViewHolder)v.getTag()).getDevice();
+        ((MainActivity) getActivity()).showDeviceConnectedFragment(d.getMacAddress());
     }
 
     @Override
