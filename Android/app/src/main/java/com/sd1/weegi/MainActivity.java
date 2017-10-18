@@ -2,6 +2,7 @@ package com.sd1.weegi;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.FragmentManager;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -154,6 +155,15 @@ public class MainActivity extends AppCompatActivity
             case READY:
                 showScanFragment();
         }
+    }
+
+    public void back() {
+        getFragmentManager().popBackStack();
+    }
+
+    public void resetAppState() {
+        getFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        showScanFragment();
     }
 
     public void showScanFragment() {
