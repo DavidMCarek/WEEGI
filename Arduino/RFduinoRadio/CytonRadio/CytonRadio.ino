@@ -67,10 +67,10 @@ void RFduinoBLE_onReceive(char *data, int len) {
 
   switch (data[0]) {
   case (char) 0: 
-    StartRecording();
+    StopRecording();
     break;
   case (char) 1:
-    StopRecording();
+    StartRecording();
     break;
   case (char) 2:
     GetFileList();
