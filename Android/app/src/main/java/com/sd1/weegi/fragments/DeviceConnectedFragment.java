@@ -97,19 +97,23 @@ public class DeviceConnectedFragment extends Fragment {
                     .writeCharacteristic(Constants.RFduinoService.Characteristics.UUID_WRITE, new byte[]{0x00}))
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(ignore -> {
-                        mConnectionObservable
-                                .flatMap(rxBleConnection -> rxBleConnection
-                                .readCharacteristic(Constants.RFduinoService.Characteristics.UUID_READ))
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(bytes -> {
-
-                                    Log.i(DeviceConnectedFragment.class.getName(), "read res");
-                                }, BleUtil::logError);
+                        readData();
                     }, BleUtil::logError);
             mIsConnected = true;
         } else if (newState == DISCONNECTED && mIsConnected) {
             ((MainActivity) getActivity()).resetAppState();
         }
+    }
+
+    private void readData() {
+        mConnectionObservable
+                .flatMap(rxBleConnection -> rxBleConnection
+                .readCharacteristic(Constants.RFduinoService.Characteristics.UUID_READ))
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(bytes -> {
+
+                    Log.i(DeviceConnectedFragment.class.getName(), "read res");
+                }, BleUtil::logError);
     }
 
     private void handleConnectionError(Throwable throwable) {
