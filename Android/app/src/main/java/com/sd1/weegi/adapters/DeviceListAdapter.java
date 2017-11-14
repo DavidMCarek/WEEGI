@@ -38,11 +38,12 @@ public class DeviceListAdapter extends ArrayAdapter<ScanResultViewModel> {
 
         final ScanResultViewModel result = getItem(position);
 
-        assert result != null;
-        holder.mDevice = result.getBleDevice();
-        holder.mTitle.setText(safeDisplayName(safeDisplayName(result.getBleDevice().getName())));
-        holder.mMacAddress.setText(result.getBleDevice().getMacAddress());
-        holder.mRssi.setProgress(result.getRssiPercent());
+        if (result != null) {
+            holder.mDevice = result.getBleDevice();
+            holder.mTitle.setText(safeDisplayName(safeDisplayName(result.getBleDevice().getName())));
+            holder.mMacAddress.setText(result.getBleDevice().getMacAddress());
+            holder.mRssi.setProgress(result.getRssiPercent());
+        }
 
         return convertView;
     }

@@ -1,6 +1,9 @@
 package com.sd1.weegi.fragments;
 
+import android.app.AlertDialog;
 import android.app.ListFragment;
+import android.bluetooth.BluetoothAdapter;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -28,11 +31,15 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import rx.Subscription;
 
+import static android.app.Activity.RESULT_OK;
+
 /**
  * Created by DMCar on 9/14/2017.
  */
 
 public class ScannerFragment extends ListFragment {
+
+    public static final String TAG = ScannerFragment.class.getName();
 
     @Inject
     RxBleClient mRxBleClient;
@@ -45,6 +52,7 @@ public class ScannerFragment extends ListFragment {
     private static final long DEVICE_UPDATE_TIME_MILLIS = 1000L;
     private static final long DEVICE_REMOVAL_TIME_MILLIS = 20000L;
     private static final long UPDATE_LIST_TIME_MILLIS = 3000L;
+    private static final int REQUEST_ENABLE_BT = 20;
 
     private Subscription mScanSubscription;
     private DeviceListAdapter mAdapter;
@@ -66,6 +74,8 @@ public class ScannerFragment extends ListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         ((MainApplication) this.getActivity().getApplication()).getRxBleClientComponent().inject(this);
 
+        ensureBluetoothEnabled();
+
         View v = inflater.inflate(R.layout.scanner_fragment, container, false);
         mUnBinder = ButterKnife.bind(this, v);
 
@@ -75,6 +85,31 @@ public class ScannerFragment extends ListFragment {
         setListAdapter(mAdapter);
 
         return v;
+    }
+
+    private void ensureBluetoothEnabled() {
+        switch (mRxBleClient.getState()) {
+            case BLUETOOTH_NOT_ENABLED:
+                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+                break;
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == REQUEST_ENABLE_BT) {
+            if(RESULT_OK != resultCode)
+                new AlertDialog.Builder(getContext())
+                        .setMessage("Bluetooth is required to use this service.")
+                        .setPositiveButton("OK", (dialog, which) -> {
+                            ensureBluetoothEnabled();
+                            dialog.dismiss();
+                        })
+                        .show();
+        }
     }
 
     @Override

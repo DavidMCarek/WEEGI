@@ -37,6 +37,8 @@ import static com.polidea.rxandroidble.RxBleConnection.RxBleConnectionState.DISC
 
 public class DeviceConnectedFragment extends Fragment {
 
+    public static final String TAG = DeviceConnectedFragment.class.getName();
+
     @Inject
     RxBleClient mRxBleClient;
 

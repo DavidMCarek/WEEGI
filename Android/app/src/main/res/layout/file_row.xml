@@ -1,12 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="15dp">
 
-    <TextView
+    <TextView android:id="@+id/file_row_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="10/7/2017 - 08:35:17"
-        android:padding="15dp"
-        style="@style/TextAppearance.AppCompat.Large"/>
-</LinearLayout>
+        android:text="file name"
+        android:textStyle="bold"
+        style="@android:style/TextAppearance.Large"
+        />
+
+    <TextView android:id="@+id/file_row_size"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="5.37KB"
+        android:layout_below="@id/file_row_name"
+        />
+
+    <TextView android:id="@+id/file_row_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="1/12/2017 08:35:17"
+        style="@android:style/TextAppearance.Medium"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        />
+
+</RelativeLayout>
