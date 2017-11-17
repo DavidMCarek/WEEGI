@@ -7,22 +7,24 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
 import com.sd1.weegi.R;
+import com.sd1.weegi.viewmodels.SelectableFileViewModel;
 
-import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnCheckedChanged;
 
 /**
  * Created by DMCar on 11/5/2017.
  */
 
-public class FileListAdapter extends ArrayAdapter<File> {
+public class FileListAdapter extends ArrayAdapter<SelectableFileViewModel> {
     public FileListAdapter(@NonNull Context context, int resource) {
         super(context, resource);
     }
@@ -39,9 +41,10 @@ public class FileListAdapter extends ArrayAdapter<File> {
             convertView.setTag(holder);
         }
 
-        final File result = getItem(position);
+        final SelectableFileViewModel result = getItem(position);
 
         if (result != null) {
+            holder.mSelected.setChecked(result.isSelected());
             holder.mFileName.setText(result.getName());
             Date date = new Date(result.lastModified());
             holder.mFileDate.setText(new SimpleDateFormat("M/d/yyyy h:m:s").format(date));
@@ -66,6 +69,8 @@ public class FileListAdapter extends ArrayAdapter<File> {
     }
 
     public static class ViewHolder {
+        @BindView(R.id.file_row_checkbox)
+        CheckBox mSelected;
         @BindView(R.id.file_row_name)
         TextView mFileName;
         @BindView(R.id.file_row_date)

@@ -9,6 +9,8 @@ import static java.util.UUID.fromString;
  */
 
 public final class Constants {
+    public static final String WEEGI_DATA_LOCATION = "Weegi";
+
     public static final class RFduinoService {
         public static final UUID UUID_SERVICE = fromString("00002220-0000-1000-8000-00805f9b34fb");
         public static final class Characteristics {

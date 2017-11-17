@@ -1,9 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:focusable="false">
 
     <ListView android:id="@android:id/list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
-</LinearLayout>
+
+    <LinearLayout
+        android:id="@android:id/progress"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="right|bottom"
+        android:focusable="false"
+        >
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/file_upload_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_file_upload_w"
+            app:elevation="4dp"
+            android:layout_margin="25dp"
+            android:focusable="false"/>
+    </LinearLayout>
+</RelativeLayout>

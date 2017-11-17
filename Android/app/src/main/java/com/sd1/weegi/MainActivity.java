@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.FragmentManager;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -21,9 +22,13 @@ import com.sd1.weegi.fragments.DeviceConnectedFragment;
 import com.sd1.weegi.fragments.FileListFragment;
 import com.sd1.weegi.fragments.ScannerFragment;
 
+import java.io.File;
+
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
+
+import static com.sd1.weegi.Constants.WEEGI_DATA_LOCATION;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener{
@@ -65,6 +70,10 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.setCheckedItem(R.id.nav_devices);
 
+        File dataDir = Environment.getExternalStoragePublicDirectory(WEEGI_DATA_LOCATION);
+        if (!dataDir.exists()) {
+            dataDir.mkdirs();
+        }
 
         if (savedInstanceState == null) {
             showScanFragment();
