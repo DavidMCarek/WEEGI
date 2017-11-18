@@ -14,7 +14,9 @@ import com.sd1.weegi.R;
 import com.sd1.weegi.viewmodels.SelectableFileViewModel;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -46,26 +48,11 @@ public class FileListAdapter extends ArrayAdapter<SelectableFileViewModel> {
         if (result != null) {
             holder.mSelected.setChecked(result.isSelected());
             holder.mFileName.setText(result.getName());
-            Date date = new Date(result.lastModified());
-            holder.mFileDate.setText(new SimpleDateFormat("M/d/yyyy h:m:s").format(date));
-            holder.mFileSize.setText(getFormattedSize(result.length()));
+            holder.mFileDate.setText(result.getLastModified());
+            holder.mFileSize.setText(result.getFormattedSize());
         }
 
         return convertView;
-    }
-
-    private String getFormattedSize(long length) {
-
-        if (length < 1000)
-            return length + " B";
-
-        if (length >= 1000 && length < 1000000)
-            return (length / 1000) + " KB";
-
-        if (length >=1000000 && length < 1000000000)
-            return (length / 1000000) + "MB";
-
-        return (length / 1000000000) + "GB";
     }
 
     public static class ViewHolder {
@@ -81,5 +68,14 @@ public class FileListAdapter extends ArrayAdapter<SelectableFileViewModel> {
         public ViewHolder(View view) {
             ButterKnife.bind(this, view);
         }
+    }
+
+    public List<SelectableFileViewModel> getItems() {
+        List<SelectableFileViewModel> files = new ArrayList<>();
+        int itemCount = this.getCount();
+        for (int i = 0; i < itemCount; i++) {
+            files.add(this.getItem(i));
+        }
+        return files;
     }
 }

@@ -15,6 +15,8 @@ import com.sd1.weegi.adapters.FileListAdapter;
 import com.sd1.weegi.viewmodels.SelectableFileViewModel;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -81,7 +83,22 @@ public class FileListFragment extends ListFragment {
 
     @OnClick(R.id.file_upload_btn)
     public void onUploadClick() {
+        List<SelectableFileViewModel> fileViewModels = mAdapter.getItems();
+
+        List<File> filesToUpload = new ArrayList<>();
+        for (SelectableFileViewModel fileViewModel : fileViewModels) {
+            if (fileViewModel.isSelected())
+                filesToUpload.add(fileViewModel.getFile());
+        }
+
+        if (filesToUpload.isEmpty()) {
+            Toast.makeText(getActivity(), "No files were selected", Toast.LENGTH_LONG).show();
+            return;
+        }
+
         Toast.makeText(getActivity(), "Uploading...", Toast.LENGTH_SHORT).show();
+
+
     }
 
     @Override
