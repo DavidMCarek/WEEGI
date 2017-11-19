@@ -1,28 +1,41 @@
-/*
-* Sets up RFduino Device for OpenBCI_32bit using RFduinoGZLL library
-*
-* This test behaves as a serial pass thru between two RFduinos,
-* To Program, user must have RFduino core files installed in Arduino 1.5.8 or later
-* Use the RFRST, RFRX, RFTX, and GND on the board to connect to USB<>Serial device
-* Your USB<>Serial device must connect RFRST with DTR through 0.1uF capacitor (sorry)
-*
-* Written by Push The World LLC 2016 inspired by Joel Murphy, Leif Percifield
-*  and Conor Russomanno. You should have recieved a copy of the license when
-*  you downloaded from github. Free to use and share. This code presented for
-*  use as-is.
-*/
+#include <RFduinoBLE.h>
 #include <RFduinoGZLL.h>
 #include "OpenBCI_Radios.h"
 
+int blePin = 4;
+bool isBle = false;
+
 void setup() {
-  // Declare the radio mode and channel number. Note this channel is only
-  //  set the first time the board powers up OR after a flash of the non-
-  //  volatile memory space with a call to `flashNonVolatileMemory`.
-  // MAKE SURE THIS CHANNEL NUMBER MATCHES THE HOST!
-  radio.begin(OPENBCI_MODE_DEVICE,20);
+
+  pinMode(blePin, INPUT);
+  isBle = digitalRead(blePin);
+  
+  if (isBle) {
+    // do ble setup
+
+    RFduinoBLE.deviceName = "WEEGi";
+    RFduinoBLE.advertisementInterval = 333;
+    RFduinoBLE.txPowerLevel = -8;
+    RFduinoBLE.advertisementData = "cyton";
+    RFduinoBLE.begin();
+  }
+  else {
+    // do gzll setup
+    
+    // Declare the radio mode and channel number. Note this channel is only
+    //  set the first time the board powers up OR after a flash of the non-
+    //  volatile memory space with a call to `flashNonVolatileMemory`.
+    // MAKE SURE THIS CHANNEL NUMBER MATCHES THE HOST!
+    radio.begin(OPENBCI_MODE_DEVICE,20);
+  }
 }
 
 void loop() {
+
+  if (isBle) {
+
+    return;
+  }
 
   // First we must ask if an emergency stop flag has been triggered, as a Device
   //  we must frequently ask this question as we are the only one that can
@@ -140,3 +153,4 @@ void RFduinoGZLL_onReceive(device_t device, int rssi, char *data, int len) {
     radio.sendPacketToHost();
   }
 }
+
