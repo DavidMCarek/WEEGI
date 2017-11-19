@@ -40,4 +40,5 @@ dependencies {
     testCompile 'junit:junit:4.12'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.3.0'
     annotationProcessor 'com.google.dagger:dagger-compiler:2.11'
+    compile group: 'commons-net', name: 'commons-net', version: '3.3'
 }

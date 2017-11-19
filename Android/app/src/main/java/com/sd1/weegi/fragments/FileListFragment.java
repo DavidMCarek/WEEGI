@@ -12,6 +12,8 @@ import android.widget.Toast;
 
 import com.sd1.weegi.R;
 import com.sd1.weegi.adapters.FileListAdapter;
+import com.sd1.weegi.models.FileUploadResult;
+import com.sd1.weegi.tasks.FileUploadTask;
 import com.sd1.weegi.viewmodels.SelectableFileViewModel;
 
 import java.io.File;
@@ -28,14 +30,14 @@ import static com.sd1.weegi.Constants.WEEGI_DATA_LOCATION;
  * Created by DMCar on 11/5/2017.
  */
 
-public class FileListFragment extends ListFragment {
+public class FileListFragment extends ListFragment implements FileUploadTask.FileUploadCompleteListener {
 
     public static final String TAG = FileListFragment.class.getName();
 
     private File mDataDir;
     private FileListAdapter mAdapter;
     private Unbinder mUnbinder;
-
+    private boolean mAllowUiCallbacks;
 
     public static FileListFragment newInstance() {
 
@@ -58,6 +60,8 @@ public class FileListFragment extends ListFragment {
         mAdapter.setNotifyOnChange(false);
 
         setListAdapter(mAdapter);
+
+        mAllowUiCallbacks = true;
 
         return v;
     }
@@ -98,12 +102,22 @@ public class FileListFragment extends ListFragment {
 
         Toast.makeText(getActivity(), "Uploading...", Toast.LENGTH_SHORT).show();
 
-
+        FileUploadTask fileUploadTask = new FileUploadTask(this);
+        fileUploadTask.execute(filesToUpload.toArray(new File[filesToUpload.size()]));
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         mUnbinder.unbind();
+        mAllowUiCallbacks = false;
+    }
+
+    @Override
+    public void FileUploadComplete(FileUploadResult result) {
+        if (!mAllowUiCallbacks)
+            return;
+
+        
     }
 }
