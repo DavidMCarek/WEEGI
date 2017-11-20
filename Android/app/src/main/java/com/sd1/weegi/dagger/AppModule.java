@@ -3,8 +3,6 @@ package com.sd1.weegi.dagger;
 import android.app.Application;
 import android.content.Context;
 
-import com.polidea.rxandroidble.RxBleClient;
-
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -34,9 +32,5 @@ public class AppModule {
         return application.getApplicationContext();
     }
 
-    @Provides
-    @Singleton
-    public static RxBleClient provideRxBleClient(Context context) {
-        return RxBleClient.create(context);
-    }
+
 }
