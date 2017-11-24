@@ -17,7 +17,6 @@ boolean SDfileOpen = false; // Set true by SD_Card_Stuff.ino on successful file 
   int pushButton = 17;                // button is on pin D17
   int pushButtonValue;                // latest button state
   int previousPushButtonValue;        // previous button state
-  boolean isBlinking = false;         // is the led currently blinking
   boolean ledState = HIGH;            // used to toggle the on-board LED
   unsigned long previousMillis = 0;   // store how long LED has been in current state
 
@@ -42,12 +41,15 @@ void loop() {
     {
       previousMillis = millis();                // debounce the button
       if (pushButtonValue == HIGH)              // button was just pressed
-        isBlinking = !isBlinking;
+        if (board.streaming)
+          board.streamStop();
+        else
+          board.streamStart();
         
       previousPushButtonValue = pushButtonValue;
     }
     
-    if (isBlinking == false)
+    if (board.streaming == false)
       ledState = HIGH;
     else if (millis() > (previousMillis + 500))
     {
