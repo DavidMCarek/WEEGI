@@ -1,3 +1,15 @@
 <resources>
     <string name="app_name">WEEGi</string>
+    <string name="device_label">Device</string>
+    <string name="device_refresh_button">↺</string>
+    <string name="recording_destination_label">Recording Destination</string>
+    <string name="sd_card_label">SD Card</string>
+    <string name="sd_card_description">SD Card</string>
+    <string name="cloud_label">Cloud</string>
+    <string name="cloud_description">Cloud</string>
+    <string name="start_button">Start</string>
+    <string name="stop_button">Stop</string>
+    <string name="searching">Searching . . .</string>
+    <string name="error_searching">Error Searching</string>
+    <string name="no_devices">No Devices</string>
 </resources>

@@ -7,101 +7,216 @@
     tools:context="com.senordesign.weegi.MainActivity"
     android:layout_margin="20dp">
 
-    <EditText
-        android:id="@+id/ip_address_value"
-        android:layout_width="match_parent"
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/device_layout"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="Ip Address of Cyton"
-        app:layout_constraintTop_toTopOf="parent"/>
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/recording_destination_layout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-    <LinearLayout
-        android:id="@+id/recording_destination"
-        android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/device_text"
+            style="@style/TextAppearance.AppCompat.Medium"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/device_label"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            />
+
+        <Spinner
+            android:id="@+id/device_spinner"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/device_refresh_button"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/device_text"/>
+
+        <Button
+            android:id="@+id/device_refresh_button"
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/device_refresh_button"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/device_text"/>
+    </android.support.constraint.ConstraintLayout>
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/recording_destination_layout"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintTop_toBottomOf="@+id/ip_address_value">
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/device_layout">
 
         <TextView
             android:id="@+id/recording_destination_text"
-            android:layout_width="wrap_content"
+            style="@style/TextAppearance.AppCompat.Medium"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Recording Destination"
-            style="@style/TextAppearance.AppCompat.Medium"/>
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:text="@string/recording_destination_label"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            />
 
-        <LinearLayout
-            android:id="@+id/destination_sd_card"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/sd_layout"
+            android:layout_width="0dp"
+            android:layout_height="49dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/recording_destination_text">
 
             <CheckBox
-                android:id="@+id/destination_sd_checkbox"
+                android:id="@+id/sd_checkbox"
+                style="@android:style/Widget.Material.CompoundButton.CheckBox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                style="@android:style/Widget.Material.CompoundButton.CheckBox"/>
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
 
             <TextView
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
+                android:id="@+id/sd_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="SD Card"/>
+                android:layout_marginBottom="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:text="@string/sd_card_label"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/sd_checkbox"
+                app:layout_constraintTop_toTopOf="parent"/>
 
             <ImageView
+                android:id="@+id/sd_image"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_sd_card"/>
-        </LinearLayout>
+                android:layout_marginBottom="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginTop="8dp"
+                android:src="@drawable/ic_sd_card"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:contentDescription="@string/sd_card_description"/>
+        </android.support.constraint.ConstraintLayout>
 
-        <LinearLayout
-            android:id="@+id/destination_cloud"
-            android:layout_width="wrap_content"
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/cloud_layout"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/sd_layout">
 
             <CheckBox
-                android:id="@+id/destination_cloud_checkbox"
+                android:id="@+id/cloud_checkbox"
+                style="@android:style/Widget.Material.CompoundButton.CheckBox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                style="@android:style/Widget.Material.CompoundButton.CheckBox"/>
+                android:layout_marginBottom="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
 
             <TextView
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
+                android:id="@+id/cloud_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Cloud"/>
+                android:layout_marginBottom="8dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:text="@string/cloud_label"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/cloud_checkbox"
+                app:layout_constraintTop_toTopOf="parent"/>
 
             <ImageView
+                android:id="@+id/cloud_image"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_cloud"/>
-        </LinearLayout>
-    </LinearLayout>
+                android:layout_marginBottom="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginTop="8dp"
+                android:src="@drawable/ic_cloud"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:contentDescription="@string/cloud_description"/>
+        </android.support.constraint.ConstraintLayout>
+
+    </android.support.constraint.ConstraintLayout>
 
 
     <android.support.v7.widget.ButtonBarLayout
+        android:id="@+id/buttonBarLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/recording_destination">
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/recording_destination_layout">
 
         <Button
             android:id="@+id/start_recording_btn"
+            style="@android:style/Widget.Material.Button.Colored"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Start"
-            style="@android:style/Widget.Material.Button.Colored"/>
+            android:text="@string/start_button"/>
 
         <Button
             android:id="@+id/stop_recording_btn"
+            style="@android:style/Widget.Material.Button.Colored"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Stop"
-            style="@android:style/Widget.Material.Button.Colored"
+            android:text="@string/stop_button"
             />
 
     </android.support.v7.widget.ButtonBarLayout>
-
 
 
 </android.support.constraint.ConstraintLayout>

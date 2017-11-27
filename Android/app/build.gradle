@@ -38,4 +38,8 @@ dependencies {
     //Gson
     compile 'com.google.code.gson:gson:2.4'
     implementation 'com.android.support:design:26.1.0'
+
+    //ssdp-client
+    compile 'io.resourcepool:ssdp-client:1.2.0'
+
 }
