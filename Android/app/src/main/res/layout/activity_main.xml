@@ -14,68 +14,93 @@
         android:hint="Ip Address of Cyton"
         app:layout_constraintTop_toTopOf="parent"/>
 
-    <TextView
-        android:id="@+id/recording_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/ip_address_value"
-        android:text="Recording Destination"
-        style="@style/TextAppearance.AppCompat.Medium"/>
-
     <LinearLayout
-        android:id="@+id/destination_sd_card"
-        android:layout_width="match_parent"
+        android:id="@+id/recording_destination"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintTop_toBottomOf="@+id/recording_text">
-
-        <CheckBox
-            android:id="@+id/destination_sd_checkbox"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            style="@android:style/Widget.Material.CompoundButton.CheckBox"/>
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@+id/ip_address_value">
 
         <TextView
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
+            android:id="@+id/recording_destination_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="SD Card"/>
+            android:text="Recording Destination"
+            style="@style/TextAppearance.AppCompat.Medium"/>
 
-
-        <ImageView
+        <LinearLayout
+            android:id="@+id/destination_sd_card"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_sd_card"/>
+            android:orientation="horizontal">
 
+            <CheckBox
+                android:id="@+id/destination_sd_checkbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@android:style/Widget.Material.CompoundButton.CheckBox"/>
+
+            <TextView
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SD Card"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_sd_card"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/destination_cloud"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <CheckBox
+                android:id="@+id/destination_cloud_checkbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@android:style/Widget.Material.CompoundButton.CheckBox"/>
+
+            <TextView
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cloud"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_cloud"/>
+        </LinearLayout>
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
+
+    <android.support.v7.widget.ButtonBarLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintTop_toBottomOf="@+id/destination_sd_card">
+        app:layout_constraintTop_toBottomOf="@id/recording_destination">
 
-        <CheckBox
-            android:id="@+id/destination_cloud_checkbox"
+        <Button
+            android:id="@+id/start_recording_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@android:style/Widget.Material.CompoundButton.CheckBox"/>
+            android:text="Start"
+            style="@android:style/Widget.Material.Button.Colored"/>
 
-        <TextView
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
+        <Button
+            android:id="@+id/stop_recording_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Cloud"/>
+            android:text="Stop"
+            style="@android:style/Widget.Material.Button.Colored"
+            />
 
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_cloud"/>
-
-    </LinearLayout>
+    </android.support.v7.widget.ButtonBarLayout>
 
 
 
