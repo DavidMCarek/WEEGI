@@ -1,15 +1,20 @@
 package com.senordesign.weegi;
 
 import android.os.Handler;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 import butterknife.OnItemSelected;
 import io.resourcepool.jarpic.model.DiscoveryListener;
@@ -24,6 +29,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+
+    @BindView(R.id.cloud_checkbox)
+    protected CheckBox mCloudCheckbox;
+
+    @BindView(R.id.cloud_settings_layout)
+    protected ConstraintLayout mCloudSettingsLayout;
 
     private static final String OPENBCI_DEVICE_TYPE = "urn:schemas-upnp-org:device:Basic:1";
     private static final String TAG = "com.seniordesign.weegi";
@@ -119,6 +130,14 @@ public class MainActivity extends AppCompatActivity {
     public void onStopRecordingClick() {
         Log.d(TAG, "stop_recording_btn");
         checkRetrofitClient();
+    }
+
+    @OnCheckedChanged(R.id.cloud_checkbox)
+    public void onCloudCheckboxChange() {
+        if (mCloudCheckbox.isChecked())
+            mCloudSettingsLayout.setVisibility(View.VISIBLE);
+        else
+            mCloudSettingsLayout.setVisibility(View.GONE);
     }
 
     private void updateDeviceList(String serviceType) {

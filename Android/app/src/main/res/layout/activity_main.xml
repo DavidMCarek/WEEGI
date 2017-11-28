@@ -158,7 +158,6 @@
                 android:layout_marginBottom="8dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"/>
 
@@ -166,26 +165,59 @@
                 android:id="@+id/cloud_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:text="@string/cloud_label"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/cloud_checkbox"
-                app:layout_constraintTop_toTopOf="parent"/>
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="@id/cloud_checkbox"/>
 
             <ImageView
                 android:id="@+id/cloud_image"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginTop="8dp"
-                android:contentDescription="@string/cloud_description"
                 android:src="@drawable/ic_cloud"
-                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintBottom_toBottomOf="@id/cloud_checkbox"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
+                app:layout_constraintTop_toTopOf="parent"
+                android:contentDescription="@string/cloud_description"/>
+
+            <android.support.constraint.ConstraintLayout
+                android:id="@+id/cloud_settings_layout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintLeft_toRightOf="@id/cloud_checkbox"
+                app:layout_constraintTop_toBottomOf="@id/cloud_checkbox"
+                app:layout_constraintRight_toLeftOf="@id/cloud_image"
+                android:layout_margin="0dp">
+                <!--android:visibility=""-->
+                <EditText
+                    android:id="@+id/cloud_server_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Cloud Server Url"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:layout_marginBottom="8dp"/>
+
+                <EditText
+                    android:id="@+id/cloud_server_username"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Username"
+                    app:layout_constraintTop_toBottomOf="@id/cloud_server_name"
+                    android:layout_marginBottom="8dp"/>
+
+                <EditText
+                    android:id="@+id/cloud_server_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Password"
+                    app:layout_constraintTop_toBottomOf="@id/cloud_server_username"/>
+
+
+            </android.support.constraint.ConstraintLayout>
         </android.support.constraint.ConstraintLayout>
 
     </android.support.constraint.ConstraintLayout>
