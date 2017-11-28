@@ -46,9 +46,10 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/device_refresh_button"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/device_text"/>
+            app:layout_constraintTop_toBottomOf="@+id/device_text"
+            style="@android:style/Widget.Material.Spinner"/>
 
-        <Button
+        <ImageButton
             android:id="@+id/device_refresh_button"
             style="@style/Widget.AppCompat.Button.Colored"
             android:layout_width="wrap_content"
@@ -56,11 +57,11 @@
             android:layout_marginBottom="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginTop="8dp"
-            android:text="@string/device_refresh_button"
-            android:textStyle="bold"
+            android:src="@drawable/ic_refresh"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/device_text"/>
+            app:layout_constraintTop_toBottomOf="@+id/device_text" />
+
     </android.support.constraint.ConstraintLayout>
 
     <android.support.constraint.ConstraintLayout
