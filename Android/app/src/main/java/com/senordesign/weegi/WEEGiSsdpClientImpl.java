@@ -1,5 +1,8 @@
-package io.resourcepool.jarpic.client;
+package com.senordesign.weegi;
 
+import io.resourcepool.jarpic.client.SsdpClientImpl;
+import io.resourcepool.jarpic.client.SsdpParams;
+import io.resourcepool.jarpic.client.Utils;
 import io.resourcepool.jarpic.client.request.SsdpDiscovery;
 import io.resourcepool.jarpic.client.response.SsdpResponse;
 import io.resourcepool.jarpic.exception.NoSerialNumberException;
@@ -12,8 +15,14 @@ import io.resourcepool.jarpic.parser.ResponseParser;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.MulticastSocket;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -30,7 +39,7 @@ import java.util.concurrent.TimeUnit;
 public class WEEGiSsdpClientImpl extends SsdpClientImpl {
 
     // Interval in ms between subsequent discovery requests
-    private static final long INTERVAL_BETWEEN_REQUESTS = 10000;
+    private static final long INTERVAL_BETWEEN_REQUESTS = 2000;
 
     private enum State {
         ACTIVE, IDLE, STOPPING
@@ -205,6 +214,19 @@ public class WEEGiSsdpClientImpl extends SsdpClientImpl {
             callback.onServiceDiscovered(ssdpService);
         }
         cache.put(ssdpService.getSerialNumber(), ssdpService);
+    }
+
+    public List<SsdpService> getUnexpiredServices(String serviceType, long expirationTimeMillis){
+        List<SsdpService> returnList = new ArrayList<>();
+        for (SsdpService service : cache.values()) {
+            // response's expiry time is set to 30 minutes after the response was sent
+            long packetSentTime = service.getOriginalResponse().getExpiry() - (30 * 60 * 1000l);
+            if (((serviceType == null) || service.getServiceType().equals(serviceType)) &&
+                    ((packetSentTime + expirationTimeMillis) > new Date().getTime())) {
+                returnList.add(service);
+            }
+        }
+        return returnList;
     }
 
     @Override
