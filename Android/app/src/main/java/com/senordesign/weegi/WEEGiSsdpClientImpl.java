@@ -8,21 +8,15 @@ import io.resourcepool.jarpic.client.response.SsdpResponse;
 import io.resourcepool.jarpic.exception.NoSerialNumberException;
 import io.resourcepool.jarpic.model.DiscoveryListener;
 import io.resourcepool.jarpic.model.DiscoveryRequest;
-import io.resourcepool.jarpic.model.SsdpService;
 import io.resourcepool.jarpic.model.SsdpServiceAnnouncement;
 import io.resourcepool.jarpic.parser.ResponseParser;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.MulticastSocket;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -39,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 public class WEEGiSsdpClientImpl extends SsdpClientImpl {
 
     // Interval in ms between subsequent discovery requests
-    private static final long INTERVAL_BETWEEN_REQUESTS = 2000;
+    private static final long INTERVAL_BETWEEN_REQUESTS = 10000;
 
     private enum State {
         ACTIVE, IDLE, STOPPING
@@ -52,7 +46,7 @@ public class WEEGiSsdpClientImpl extends SsdpClientImpl {
     private List<DiscoveryRequest> requests;
     private DiscoveryListener callback;
     private State state;
-    private Map<String, SsdpService> cache = new ConcurrentHashMap<String, SsdpService>();
+    private Map<String, WEEGiSsdpService> cache = new ConcurrentHashMap<String, WEEGiSsdpService>();
     private MulticastSocket clientSocket;
 
     /**
@@ -69,7 +63,7 @@ public class WEEGiSsdpClientImpl extends SsdpClientImpl {
             requests.add(req);
         }
         // Lazily Remove expired entries
-        for (Map.Entry<String, SsdpService> e : this.cache.entrySet()) {
+        for (Map.Entry<String, WEEGiSsdpService> e : this.cache.entrySet()) {
             if (e.getValue().isExpired()) {
                 this.cache.remove(e.getKey());
             } else {
@@ -134,7 +128,7 @@ public class WEEGiSsdpClientImpl extends SsdpClientImpl {
         if (response.getType().equals(SsdpResponse.Type.DISCOVERY_RESPONSE)) {
             handleDiscoveryResponse(response);
         } else if (response.getType().equals(SsdpResponse.Type.PRESENCE_ANNOUNCEMENT)) {
-            handlePresenceAnnouncement(response);
+            // handlePresenceAnnouncement(response); //TODO: this adds random other devices to our search -kevin
         }
     }
 
@@ -157,7 +151,7 @@ public class WEEGiSsdpClientImpl extends SsdpClientImpl {
                 }
             }
             // Clear requests after they have been sent
-            requests.clear();
+            //requests.clear();       //TODO this removes our requested item from being searched again -kevin
         } catch (IOException e) {
             if (clientSocket.isClosed() && !State.ACTIVE.equals(state)) {
                 // This could happen when closing socket. In that case, this is not an issue.
@@ -180,13 +174,13 @@ public class WEEGiSsdpClientImpl extends SsdpClientImpl {
         }
     }
 
-
+    /*
     /**
      * Handle presence announcement Datagrams.
      *
      * @param response the incoming announcement
      */
-    private void handlePresenceAnnouncement(SsdpResponse response) {
+    /*private void handlePresenceAnnouncement(SsdpResponse response) {
         SsdpServiceAnnouncement ssdpServiceAnnouncement = response.toServiceAnnouncement();
         if (ssdpServiceAnnouncement.getSerialNumber() == null) {
             callback.onFailed(new NoSerialNumberException());
@@ -197,7 +191,7 @@ public class WEEGiSsdpClientImpl extends SsdpClientImpl {
         } else {
             requests.add(DiscoveryRequest.builder().serviceType(ssdpServiceAnnouncement.getServiceType()).build());
         }
-    }
+    }*/
 
     /**
      * Handle discovery response Datagrams.
@@ -205,7 +199,7 @@ public class WEEGiSsdpClientImpl extends SsdpClientImpl {
      * @param response the incoming response
      */
     private void handleDiscoveryResponse(SsdpResponse response) {
-        SsdpService ssdpService = response.toService();
+        WEEGiSsdpService ssdpService = new WEEGiSsdpService(response);
         if (ssdpService.getSerialNumber() == null) {
             callback.onFailed(new NoSerialNumberException());
             return;
@@ -216,13 +210,11 @@ public class WEEGiSsdpClientImpl extends SsdpClientImpl {
         cache.put(ssdpService.getSerialNumber(), ssdpService);
     }
 
-    public List<SsdpService> getUnexpiredServices(String serviceType, long expirationTimeMillis){
-        List<SsdpService> returnList = new ArrayList<>();
-        for (SsdpService service : cache.values()) {
-            // response's expiry time is set to 30 minutes after the response was sent
-            long packetSentTime = service.getOriginalResponse().getExpiry() - (30 * 60 * 1000l);
+    public List<WEEGiSsdpService> getUnexpiredServices(String serviceType, long expirationTimeMillis){
+        List<WEEGiSsdpService> returnList = new ArrayList<>();
+        for (WEEGiSsdpService service : cache.values()) {
             if (((serviceType == null) || service.getServiceType().equals(serviceType)) &&
-                    ((packetSentTime + expirationTimeMillis) > new Date().getTime())) {
+                    ((service.getPacketReceivedDate().getTime() + expirationTimeMillis) > new Date().getTime())) {
                 returnList.add(service);
             }
         }

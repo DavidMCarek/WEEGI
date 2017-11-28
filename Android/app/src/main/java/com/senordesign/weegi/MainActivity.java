@@ -39,16 +39,18 @@ public class MainActivity extends AppCompatActivity {
     private static final String OPENBCI_DEVICE_TYPE = "urn:schemas-upnp-org:device:Basic:1";
     private static final String TAG = "com.seniordesign.weegi";
     private static final long UPDATE_LIST_TIME_MILLIS = 5000L;
-    private static final long EXPIRATION_TIME_MILLIS = 10000L;
+    private static final long EXPIRATION_TIME_MILLIS = 60000L;
 
     private Retrofit mRetrofit;
     private CytonService mCytonService;
-    private WEEGiSsdpClientImpl client;
 
+    private AppCompatActivity mThis;
     private TextView mDeviceText;
     private Spinner mDeviceSpinner;
+
     private List<String> deviceList;
     private ArrayAdapter<String> deviceListAdapter;
+    private WEEGiSsdpClientImpl client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,20 +58,21 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
+        mThis = this;
         mDeviceText = findViewById(R.id.device_text);
+        mDeviceSpinner = findViewById(R.id.device_spinner);
 
         deviceList = new ArrayList<>();
         deviceListAdapter = new ArrayAdapter<>(
-                getApplicationContext(), android.R.layout.simple_spinner_item, deviceList);
+                this, android.R.layout.simple_spinner_item, deviceList);
         deviceListAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mDeviceSpinner = findViewById(R.id.device_spinner);
-        mDeviceSpinner.setAdapter(deviceListAdapter);
 
         client = new WEEGiSsdpClientImpl();
         setupDeviceRefreshTimer();
     }
 
     private void setupDeviceRefreshTimer() {
+        updateDeviceList(OPENBCI_DEVICE_TYPE);
         Handler mListHandler = new Handler();
         Runnable mRemoveExpiredDevicesTimer = new Runnable() {
             @Override
@@ -78,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
                 boolean listChanged = false;
 
                 for (SsdpService service: client.getUnexpiredServices(OPENBCI_DEVICE_TYPE, EXPIRATION_TIME_MILLIS))
-                    newDeviceList.add(service.getRemoteIp().toString());
+                    newDeviceList.add(service.getRemoteIp().getHostAddress());
 
                 if (newDeviceList.size() != deviceList.size())
                     listChanged = true;
@@ -91,16 +94,17 @@ public class MainActivity extends AppCompatActivity {
                 mDeviceText.setText(getText(R.string.device_label).toString() + " (" + deviceList.size() + ")");
                 if (listChanged) {
                     deviceListAdapter = new ArrayAdapter<>(
-                            getApplicationContext(), android.R.layout.simple_spinner_item, deviceList);
+                            mThis, android.R.layout.simple_spinner_item, deviceList);
                     deviceListAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    mDeviceSpinner.setAdapter(deviceListAdapter);
                     deviceListAdapter.notifyDataSetChanged();
+                    if (mDeviceSpinner.getSelectedItemPosition() < 0 && deviceList.size() > 0)
+                        mDeviceSpinner.setSelection(0);
                 }
-                updateDeviceList(OPENBCI_DEVICE_TYPE);
                 mListHandler.postDelayed(this, UPDATE_LIST_TIME_MILLIS);
             }
         };
 
-        updateDeviceList(OPENBCI_DEVICE_TYPE);
         mListHandler.postDelayed(mRemoveExpiredDevicesTimer, UPDATE_LIST_TIME_MILLIS);
     }
 
@@ -112,12 +116,6 @@ public class MainActivity extends AppCompatActivity {
         // TODO
         // try connecting
         // if failure, then show toast and refresh device list
-    }
-
-    @OnClick(R.id.device_refresh_button)
-    public void onDeviceRefreshClick() {
-        Log.d(TAG, "device_refresh_button");
-        updateDeviceList(OPENBCI_DEVICE_TYPE);
     }
 
     @OnClick(R.id.start_recording_btn)
@@ -144,10 +142,10 @@ public class MainActivity extends AppCompatActivity {
         DiscoveryRequest networkDevice = DiscoveryRequest.builder()
                 .serviceType(serviceType)
                 .build();
-        client.discoverServices(networkDevice, new DiscoveryListener() {
+        client.discoverServices(networkDevice, new DiscoveryListener() {    // automatically called every INTERVAL_BETWEEN_REQUESTS ms
             @Override
             public void onServiceDiscovered(SsdpService service) {
-                Log.i(TAG, "Service discovered" + service);
+                Log.i(TAG, "Service discovered: " + service);
             }
 
             @Override
