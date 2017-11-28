@@ -54,9 +54,9 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         deviceList = new ArrayList<>();
+        deviceList.add(getString(R.string.searching));
         deviceListAdapter = new ArrayAdapter<>(
                 getApplicationContext(), android.R.layout.simple_spinner_item, deviceList);
-        deviceList.add(getString(R.string.searching));
         deviceListAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mDeviceSpinner = findViewById(R.id.device_spinner);
         mDeviceSpinner.setAdapter(deviceListAdapter);
@@ -116,6 +116,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.i(TAG, "Service discovered: getSerialNumber = " + service.getSerialNumber());
                 Log.i(TAG, "Service discovered: getServiceType = " + service.getServiceType());
                 Log.i(TAG, "Service discovered: getRemoteIp = " + service.getRemoteIp().toString());
+                Log.i(TAG, "Service discovered: isExpired = " + service.isExpired());
                 Log.i(TAG, "Service discovered: " + service);
             }
 
@@ -137,6 +138,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         client.stopDiscovery();
+        deviceListAdapter = new ArrayAdapter<>(
+                getApplicationContext(), android.R.layout.simple_spinner_item, deviceList);
+        deviceListAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         deviceListAdapter.notifyDataSetChanged();
     }
 
