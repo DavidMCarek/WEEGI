@@ -6,6 +6,7 @@ import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 
@@ -30,9 +31,8 @@ public class CloudDialogFragment extends DialogFragment {
         View v = inflater.inflate(R.layout.fragment_cloud_dialog, null);
         builder.setView(v)
                 .setTitle("Server")
-                .setPositiveButton("SUBMIT", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {}
+                .setPositiveButton("SUBMIT", (dialogInterface, i) -> {
+                    Log.d("Submitted", "submitted");
                 })
                 .setNegativeButton("CANCEL", null);
 
