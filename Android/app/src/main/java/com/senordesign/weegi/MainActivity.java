@@ -2,6 +2,7 @@ package com.senordesign.weegi;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
@@ -9,9 +10,11 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.OnItemSelected;
 import io.resourcepool.jarpic.client.SsdpClient;
+import io.resourcepool.jarpic.client.SsdpClientImpl;
 import io.resourcepool.jarpic.model.DiscoveryListener;
 import io.resourcepool.jarpic.model.DiscoveryRequest;
 import io.resourcepool.jarpic.model.SsdpService;
+import io.resourcepool.jarpic.model.SsdpServiceAnnouncement;
 import retrofit2.Retrofit;
 
 
@@ -19,10 +22,12 @@ import com.senordesign.weegi.web.services.CytonService;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.Thread.sleep;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String OPENBCI_DEVICE_TYPE = "urn:schemas-upnp-org:device:Basic:1";
+    private static final String TAG = "com.seniordesign.weegi";
     private Retrofit mRetrofit;
     private CytonService mCytonService;
 
@@ -49,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
 
     @OnItemSelected(R.id.device_spinner)
     public void deviceSelected(Spinner spinner, int position) {
+        Log.d(TAG, "device_spinner");
         checkRetrofitClient();
         // TODO
         // try connecting
@@ -57,16 +63,19 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.device_refresh_button)
     public void onDeviceRefreshClick() {
+        Log.d(TAG, "device_refresh_button");
         updateDeviceList();
     }
 
     @OnClick(R.id.start_recording_btn)
     public void onStartRecordingClick() {
+        Log.d(TAG, "start_recording_btn");
         checkRetrofitClient();
     }
 
     @OnClick(R.id.stop_recording_btn)
     public void onStopRecordingClick() {
+        Log.d(TAG, "stop_recording_btn");
         checkRetrofitClient();
     }
 
@@ -74,20 +83,39 @@ public class MainActivity extends AppCompatActivity {
         deviceList.clear();
         deviceListAdapter.clear();
 
-        SsdpClient client = SsdpClient.create();
+        SsdpClient client = new SsdpClientImpl();
         DiscoveryRequest networkStorageDevice = DiscoveryRequest.builder()
                 .serviceType(OPENBCI_DEVICE_TYPE)
                 .build();
         client.discoverServices(networkStorageDevice, new DiscoveryListener() {
             @Override
             public void onServiceDiscovered(SsdpService service) {
-                System.out.println("Found service: " + service);
+                deviceList.add(service.getRemoteIp().toString());
+                Log.i(TAG, "Service discovered: getLocation = " + service.getLocation());
+                Log.i(TAG, "Service discovered: getSerialNumber = " + service.getSerialNumber());
+                Log.i(TAG, "Service discovered: getServiceType = " + service.getServiceType());
+                Log.i(TAG, "Service discovered: getRemoteIp = " + service.getRemoteIp().toString());
+                Log.i(TAG, "Service discovered: " + service);
+            }
+
+            @Override
+            public void onServiceAnnouncement(SsdpServiceAnnouncement announcement) {
+                Log.i(TAG, "Service announced something: " + announcement);
+            }
+
+            @Override
+            public void onFailed(Exception ex) {
+                Log.i(TAG, "Service discovery failed: " + ex.getMessage());
             }
         });
 
-        if (deviceList.size() == 0)
-            deviceList.add(getString(R.string.no_devices));
-        deviceListAdapter.addAll(deviceList);
+        try {
+            sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        client.stopDiscovery();
         deviceListAdapter.notifyDataSetChanged();
     }
 
@@ -95,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
         if (mRetrofit == null)
             initializeRetrofitClient();
 
-        if (!mRetrofit.baseUrl().toString().contains(mDeviceSpinner.getSelectedItem().toString()))
+        if (!mRetrofit.baseUrl().toString().contains(mDeviceSpinner.getSelectedItem().toString()))  // TODO crashes
             initializeRetrofitClient();
     }
 
