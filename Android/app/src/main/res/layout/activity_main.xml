@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.senordesign.weegi.MainActivity"
-    android:layout_margin="20dp">
+                                             xmlns:app="http://schemas.android.com/apk/res-auto"
+                                             xmlns:tools="http://schemas.android.com/tools"
+                                             android:layout_width="match_parent"
+                                             android:layout_height="match_parent"
+                                             android:layout_margin="20dp"
+                                             tools:context="com.senordesign.weegi.MainActivity">
 
     <android.support.constraint.ConstraintLayout
         android:id="@+id/device_layout"
@@ -37,30 +37,17 @@
 
         <Spinner
             android:id="@+id/device_spinner"
+            style="@android:style/Widget.Material.Spinner"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="33dp"
             android:layout_marginBottom="8dp"
             android:layout_marginEnd="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/device_refresh_button"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/device_text"
-            style="@android:style/Widget.Material.Spinner"/>
-
-        <ImageButton
-            android:id="@+id/device_refresh_button"
-            style="@style/Widget.AppCompat.Button.Colored"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginTop="8dp"
-            android:src="@drawable/ic_refresh"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/device_text" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/device_text"/>
 
     </android.support.constraint.ConstraintLayout>
 
@@ -131,11 +118,11 @@
                 android:layout_marginBottom="8dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginTop="8dp"
+                android:contentDescription="@string/sd_card_description"
                 android:src="@drawable/ic_sd_card"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                android:contentDescription="@string/sd_card_description"/>
+                app:layout_constraintTop_toTopOf="parent"/>
         </android.support.constraint.ConstraintLayout>
 
 
@@ -192,8 +179,7 @@
                 app:layout_constraintTop_toBottomOf="@id/cloud_checkbox"
                 app:layout_constraintRight_toLeftOf="@id/cloud_image"
                 android:layout_margin="0dp"
-                android:visibility=""
-                >
+                android:visibility="gone">
                 <EditText
                     android:id="@+id/cloud_server_name"
                     android:layout_width="match_parent"
