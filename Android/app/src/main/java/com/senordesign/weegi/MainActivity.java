@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -55,7 +56,8 @@ public class MainActivity extends AppCompatActivity {
     @OnItemSelected(R.id.device_spinner)
     public void deviceSelected(Spinner spinner, int position) {
         Log.d(TAG, "device_spinner");
-        checkRetrofitClient();
+        if (!checkRetrofitClient())
+            return;
         // TODO
         // try connecting
         // if failure, then show toast and refresh device list
@@ -119,19 +121,24 @@ public class MainActivity extends AppCompatActivity {
         deviceListAdapter.notifyDataSetChanged();
     }
 
-    private void checkRetrofitClient() {
+    private boolean checkRetrofitClient() {
+        if (mDeviceSpinner.getSelectedItem() == null) {
+            Toast.makeText(this, "Device not selected", Toast.LENGTH_LONG).show();
+            return false;
+        }
+
         if (mRetrofit == null)
             initializeRetrofitClient();
 
-        if (!mRetrofit.baseUrl().toString().contains(mDeviceSpinner.getSelectedItem().toString()))  // TODO crashes
+        if (!mRetrofit.baseUrl().toString().contains(mDeviceSpinner.getSelectedItem().toString()))
             initializeRetrofitClient();
+
+        return true;
     }
 
     private void initializeRetrofitClient() {
         mRetrofit = new Retrofit.Builder()
-                .baseUrl("http://" + (mDeviceSpinner.getSelectedItem() != null
-                        ? mDeviceSpinner.getSelectedItem().toString()
-                        : "0.0.0.0") + "/")
+                .baseUrl("http://" + mDeviceSpinner.getSelectedItem().toString() + "/")
                 .build();
 
         mCytonService = mRetrofit.create(CytonService.class);
