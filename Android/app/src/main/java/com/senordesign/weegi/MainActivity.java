@@ -142,16 +142,14 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        Call<Void> setupRequest = mCytonService.executeCommand(
-                new CommandRequestModel(ATTACH_COMMAND + TURN_CHANNELS_ON_COMMAND)
-        );
+        Call<Void> setupRequest = mCytonService.executeCommand(new CommandRequestModel(ATTACH_COMMAND));
 
         setupRequest.enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (!MainActivity.this.isDestroyed()) {
                     if (response.isSuccessful())
-                        MainActivity.this.startStreaming();
+                        MainActivity.this.turnOnChannels();
                     else {
                         Toast.makeText(MainActivity.this, "Failed to setup wifi shield", Toast.LENGTH_LONG).show();
                         try {
@@ -166,6 +164,32 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("CytonError", "Request failed", t);
                 if (!MainActivity.this.isDestroyed())
                     Toast.makeText(MainActivity.this, "Error: Failed to setup wifi shield", Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private void turnOnChannels() {
+        Call<Void> turnOnChannelsRequest = mCytonService.executeCommand(new CommandRequestModel(TURN_CHANNELS_ON_COMMAND));
+        turnOnChannelsRequest.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (!MainActivity.this.isDestroyed()) {
+                    if (response.isSuccessful())
+                        MainActivity.this.startStreaming();
+                    else {
+                        Toast.makeText(MainActivity.this, "Failed to turn on channels", Toast.LENGTH_LONG).show();
+                        try {
+                            Log.e("CytonError", response.errorBody().string() + " ");
+                        } catch (IOException e) {}
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Log.e("CytonError", "Request failed", t);
+                if (!MainActivity.this.isDestroyed())
+                    Toast.makeText(MainActivity.this, "Error: Failed to turn on channels", Toast.LENGTH_LONG).show();
             }
         });
     }
