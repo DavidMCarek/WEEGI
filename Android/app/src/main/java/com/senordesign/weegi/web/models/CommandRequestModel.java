@@ -8,4 +8,7 @@ public class CommandRequestModel {
     @SerializedName("command")
     public String command;
 
+    public CommandRequestModel(String command) {
+        this.command = command;
+    }
 }
