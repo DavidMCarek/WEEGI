@@ -149,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (!MainActivity.this.isDestroyed()) {
                     if (response.isSuccessful())
-                        MainActivity.this.turnOnChannels();
+                        MainActivity.this.startStreaming();
                     else {
                         Toast.makeText(MainActivity.this, "Failed to setup wifi shield", Toast.LENGTH_LONG).show();
                         try {
@@ -168,32 +168,6 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void turnOnChannels() {
-        Call<Void> turnOnChannelsRequest = mCytonService.executeCommand(new CommandRequestModel(TURN_CHANNELS_ON_COMMAND));
-        turnOnChannelsRequest.enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if (!MainActivity.this.isDestroyed()) {
-                    if (response.isSuccessful())
-                        MainActivity.this.startStreaming();
-                    else {
-                        Toast.makeText(MainActivity.this, "Failed to turn on channels", Toast.LENGTH_LONG).show();
-                        try {
-                            Log.e("CytonError", response.errorBody().string() + " ");
-                        } catch (IOException e) {}
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-                Log.e("CytonError", "Request failed", t);
-                if (!MainActivity.this.isDestroyed())
-                    Toast.makeText(MainActivity.this, "Error: Failed to turn on channels", Toast.LENGTH_LONG).show();
-            }
-        });
-    }
-
     private void startStreaming() {
         Call<Void> startStreamRequest = mCytonService.startStreaming();
         startStreamRequest.enqueue(new Callback<Void>() {
@@ -202,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
                 if (!MainActivity.this.isDestroyed()) {
                     if (response.isSuccessful()) {
                         if (mSdCardCheckbox.isChecked()) {
-                            startRecording();
+                            turnOnChannels();
                         }
                         if (mCloudCheckbox.isChecked()) {
                             // ToDo start mqtt shazz
@@ -222,6 +196,32 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("CytonError", "Request failed", t);
                 if (!MainActivity.this.isDestroyed())
                     Toast.makeText(MainActivity.this, "Error: Failed to start streaming.", Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private void turnOnChannels() {
+        Call<Void> turnOnChannelsRequest = mCytonService.executeCommand(new CommandRequestModel(TURN_CHANNELS_ON_COMMAND));
+        turnOnChannelsRequest.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (!MainActivity.this.isDestroyed()) {
+                    if (response.isSuccessful())
+                        MainActivity.this.startRecording();
+                    else {
+                        Toast.makeText(MainActivity.this, "Failed to turn on channels", Toast.LENGTH_LONG).show();
+                        try {
+                            Log.e("CytonError", response.errorBody().string() + " ");
+                        } catch (IOException e) {}
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Log.e("CytonError", "Request failed", t);
+                if (!MainActivity.this.isDestroyed())
+                    Toast.makeText(MainActivity.this, "Error: Failed to turn on channels", Toast.LENGTH_LONG).show();
             }
         });
     }
