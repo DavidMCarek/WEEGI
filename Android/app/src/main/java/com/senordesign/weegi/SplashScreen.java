@@ -12,9 +12,9 @@ public class SplashScreen extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // TODO Auto-generated method stub
+
         super.onCreate(savedInstanceState);
-        setContentView(R.drawable.splash);
+        setContentView(R.layout.splash);
 
         Thread timerThread = new Thread(){
             public void run(){
@@ -33,7 +33,6 @@ public class SplashScreen extends Activity {
 
     @Override
     protected void onPause() {
-        // TODO Auto-generated method stub
         super.onPause();
         finish();
     }
