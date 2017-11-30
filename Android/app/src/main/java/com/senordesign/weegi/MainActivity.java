@@ -8,11 +8,15 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.senordesign.weegi.web.models.CommandRequestModel;
+import com.senordesign.weegi.web.models.MQTTRequestModel;
+import com.senordesign.weegi.web.models.MQTTResponseModel;
+import com.senordesign.weegi.web.models.StatusResponseModel;
 import com.senordesign.weegi.web.services.CytonService;
 
 import java.io.IOException;
@@ -45,6 +49,15 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.cloud_settings_layout)
     protected ConstraintLayout mCloudSettingsLayout;
 
+    @BindView(R.id.cloud_server_name)
+    protected EditText mServerName;
+
+    @BindView(R.id.cloud_server_username)
+    protected EditText mServerUsername;
+
+    @BindView(R.id.cloud_server_password)
+    protected EditText mServerPassword;
+
     private static final String OPENBCI_DEVICE_TYPE = "urn:schemas-upnp-org:device:Basic:1";
     private static final String TAG = "com.seniordesign.weegi";
     private static final long UPDATE_LIST_TIME_MILLIS = 5000L;
@@ -57,14 +70,20 @@ public class MainActivity extends AppCompatActivity {
     private TextView mDeviceText;
     private Spinner mDeviceSpinner;
 
-    private List<String> deviceList;
-    private ArrayAdapter<String> deviceListAdapter;
-    private WEEGiSsdpClientImpl client;
+    private List<String> mDeviceList;
+    private ArrayAdapter<String> mDeviceListAdapter;
+    private WEEGiSsdpClientImpl mClient;
+    private int mRetryCounter;
 
-    private static final String ATTACH_COMMAND = "{";
-    private static final String TURN_CHANNELS_ON_COMMAND = "!@#$%^&*";
     private static final String RECORD_5_MIN_COMMAND = "A";
+    private static final String START_STREAM_COMMAND = "b";
+    private static final String OPEN_CHANNELS_COMMAND = "!@#$%^&*";
+
+    private static final String TURN_CHANNELS_OFF_COMMAND = "12345678";
+    private static final String STOP_STREAM_COMMAND = "s";
     private static final String STOP_RECORD_COMMAND = "j";
+
+    private static final String STATUS_COMMAND = "n";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,12 +95,12 @@ public class MainActivity extends AppCompatActivity {
         mDeviceText = findViewById(R.id.device_text);
         mDeviceSpinner = findViewById(R.id.device_spinner);
 
-        deviceList = new ArrayList<>();
-        deviceListAdapter = new ArrayAdapter<>(
-                this, android.R.layout.simple_spinner_item, deviceList);
-        deviceListAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mDeviceList = new ArrayList<>();
+        mDeviceListAdapter = new ArrayAdapter<>(
+                this, android.R.layout.simple_spinner_item, mDeviceList);
+        mDeviceListAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        client = new WEEGiSsdpClientImpl();
+        mClient = new WEEGiSsdpClientImpl();
         setupDeviceRefreshTimer();
     }
 
@@ -94,25 +113,25 @@ public class MainActivity extends AppCompatActivity {
                 List<String> newDeviceList = new ArrayList<>();
                 boolean listChanged = false;
 
-                for (SsdpService service: client.getUnexpiredServices(OPENBCI_DEVICE_TYPE, EXPIRATION_TIME_MILLIS))
+                for (SsdpService service : mClient.getUnexpiredServices(OPENBCI_DEVICE_TYPE, EXPIRATION_TIME_MILLIS))
                     newDeviceList.add(service.getRemoteIp().getHostAddress());
 
-                if (newDeviceList.size() != deviceList.size())
+                if (newDeviceList.size() != mDeviceList.size())
                     listChanged = true;
                 else
-                    for (String list : deviceList)
+                    for (String list : mDeviceList)
                         if (!newDeviceList.contains(list))
                             listChanged = true;
 
-                deviceList = newDeviceList;
-                mDeviceText.setText(getText(R.string.device_label).toString() + " (" + deviceList.size() + ")");
+                mDeviceList = newDeviceList;
+                mDeviceText.setText(getText(R.string.device_label).toString() + " (" + mDeviceList.size() + ")");
                 if (listChanged) {
-                    deviceListAdapter = new ArrayAdapter<>(
-                            mThis, android.R.layout.simple_spinner_item, deviceList);
-                    deviceListAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                    mDeviceSpinner.setAdapter(deviceListAdapter);
-                    deviceListAdapter.notifyDataSetChanged();
-                    if (mDeviceSpinner.getSelectedItemPosition() < 0 && deviceList.size() > 0)
+                    mDeviceListAdapter = new ArrayAdapter<>(
+                            mThis, android.R.layout.simple_spinner_item, mDeviceList);
+                    mDeviceListAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    mDeviceSpinner.setAdapter(mDeviceListAdapter);
+                    mDeviceListAdapter.notifyDataSetChanged();
+                    if (mDeviceSpinner.getSelectedItemPosition() < 0 && mDeviceList.size() > 0)
                         mDeviceSpinner.setSelection(0);
                 }
                 mListHandler.postDelayed(this, UPDATE_LIST_TIME_MILLIS);
@@ -126,9 +145,7 @@ public class MainActivity extends AppCompatActivity {
     public void deviceSelected(Spinner spinner, int position) {
         Log.d(TAG, "device_spinner");
 
-        // TODO
-        // try connecting
-        // if failure, then show toast and refresh device list
+        // TODO send yt
     }
 
     @OnClick(R.id.start_recording_btn)
@@ -142,171 +159,344 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        Call<Void> setupRequest = mCytonService.executeCommand(new CommandRequestModel(ATTACH_COMMAND));
+        if (mCloudCheckbox.isChecked() && mServerName.getText().toString().equals("")) {
+            Toast.makeText(this, "Cloud server url required for cloud recording.", Toast.LENGTH_LONG).show();
+            return;
+        }
 
-        setupRequest.enqueue(new Callback<Void>() {
+        checkStatusAndStart();
+    }
+
+    private void checkStatusAndStart() {
+        Call<StatusResponseModel> statusRequest = mCytonService.checkStatus(
+                new CommandRequestModel(STATUS_COMMAND)
+        );
+        mRetryCounter = 3;
+        statusRequest.enqueue(new Callback<StatusResponseModel>() {
             @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
+            public void onResponse(Call<StatusResponseModel> call, Response<StatusResponseModel> response) {
                 if (!MainActivity.this.isDestroyed()) {
-                    if (response.isSuccessful())
-                        MainActivity.this.startStreaming();
-                    else {
-                        Toast.makeText(MainActivity.this, "Failed to setup wifi shield", Toast.LENGTH_LONG).show();
+                    if (response.isSuccessful()) {
+                        if (response.body().isRecording() || response.body().isStreaming()) {
+                            Toast.makeText(MainActivity.this, "Device is already recording or streaming. Please stop first.", Toast.LENGTH_LONG).show();
+                        } else {
+                            if (mCloudCheckbox.isChecked()) {
+                                setupMQTT();
+                            } else {
+                                startRecord();
+                            }
+                        }
+
+                    } else {
+                        if (mRetryCounter > 0) {
+                            mRetryCounter--;
+                            call.clone().enqueue(this);
+                            return;
+                        }
+
+                        Toast.makeText(MainActivity.this, "Failed to get status", Toast.LENGTH_LONG).show();
                         try {
                             Log.e("CytonError", response.errorBody().string() + " ");
-                        } catch (IOException e) {}
+                        } catch (IOException e) {
+                        }
                     }
                 }
             }
 
             @Override
-            public void onFailure(Call<Void> call, Throwable t) {
+            public void onFailure(Call<StatusResponseModel> call, Throwable t) {
+                if (mRetryCounter > 0) {
+                    mRetryCounter--;
+                    call.clone().enqueue(this);
+                    return;
+                }
+
                 Log.e("CytonError", "Request failed", t);
-                if (!MainActivity.this.isDestroyed())
-                    Toast.makeText(MainActivity.this, "Error: Failed to setup wifi shield", Toast.LENGTH_LONG).show();
+                if (!MainActivity.this.isDestroyed()) {
+                    Toast.makeText(MainActivity.this, "Error: Failed to get status", Toast.LENGTH_LONG).show();
+                }
             }
         });
     }
 
-    private void startStreaming() {
-        Call<Void> startStreamRequest = mCytonService.startStreaming();
-        startStreamRequest.enqueue(new Callback<Void>() {
+    private void setupMQTT() {
+        Call<MQTTResponseModel> mqttRequest = mCytonService.setupCloudStreaming(
+                new MQTTRequestModel(
+                        mServerName.getText().toString(),
+                        mServerUsername.getText().toString(),
+                        mServerPassword.getText().toString()
+                )
+        );
+
+        mRetryCounter = 3;
+        mqttRequest.enqueue(new Callback<MQTTResponseModel>() {
+            @Override
+            public void onResponse(Call<MQTTResponseModel> call, Response<MQTTResponseModel> response) {
+                if (!MainActivity.this.isDestroyed()) {
+                    if (response.isSuccessful())
+                        setJsonOutput();
+                    else {
+                        if (mRetryCounter > 0) {
+                            mRetryCounter--;
+                            call.clone().enqueue(this);
+                            return;
+                        }
+                        Toast.makeText(MainActivity.this, "Failed to start cloud streaming", Toast.LENGTH_LONG).show();
+                        try {
+                            Log.e("CytonError", response.errorBody().string() + " ");
+                        } catch (IOException e) {
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<MQTTResponseModel> call, Throwable t) {
+                if (mRetryCounter > 0) {
+                    mRetryCounter--;
+                    call.clone().enqueue(this);
+                    return;
+                }
+
+                Log.e("CytonError", "Request failed", t);
+                if (!MainActivity.this.isDestroyed())
+                    Toast.makeText(MainActivity.this, "Error: Failed to start cloud streaming", Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private void setJsonOutput() {
+        Call<Void> setOutputToJsonRequest = mCytonService.setOutputToJson();
+
+        mRetryCounter = 3;
+        setOutputToJsonRequest.enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (!MainActivity.this.isDestroyed()) {
                     if (response.isSuccessful()) {
                         if (mSdCardCheckbox.isChecked()) {
-                            turnOnChannels();
-                        }
-                        if (mCloudCheckbox.isChecked()) {
-                            // ToDo start mqtt shazz
+                            startRecord();
+                        } else {
+                            startStreamingAndOpenChannels();
                         }
                     } else {
-                        Toast.makeText(MainActivity.this, "Failed to start streaming.", Toast.LENGTH_LONG).show();
+                        if (mRetryCounter > 0) {
+                            mRetryCounter--;
+                            call.clone().enqueue(this);
+                            return;
+                        }
+                        Toast.makeText(MainActivity.this, "Failed to set output to JSON", Toast.LENGTH_LONG).show();
                         try {
                             Log.e("CytonError", response.errorBody().string() + " ");
-                        } catch (IOException e) {}
-                    }
-                }
-
-            }
-
-            @Override
-            public void onFailure(Call<Void> call, Throwable t) {
-                Log.e("CytonError", "Request failed", t);
-                if (!MainActivity.this.isDestroyed())
-                    Toast.makeText(MainActivity.this, "Error: Failed to start streaming.", Toast.LENGTH_LONG).show();
-            }
-        });
-    }
-
-    private void turnOnChannels() {
-        Call<Void> turnOnChannelsRequest = mCytonService.executeCommand(new CommandRequestModel(TURN_CHANNELS_ON_COMMAND));
-        turnOnChannelsRequest.enqueue(new Callback<Void>() {
-            @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
-                if (!MainActivity.this.isDestroyed()) {
-                    if (response.isSuccessful())
-                        MainActivity.this.startRecording();
-                    else {
-                        Toast.makeText(MainActivity.this, "Failed to turn on channels", Toast.LENGTH_LONG).show();
-                        try {
-                            Log.e("CytonError", response.errorBody().string() + " ");
-                        } catch (IOException e) {}
+                        } catch (IOException e) {
+                        }
                     }
                 }
             }
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
+                if (mRetryCounter > 0) {
+                    mRetryCounter--;
+                    call.clone().enqueue(this);
+                    return;
+                }
+
                 Log.e("CytonError", "Request failed", t);
                 if (!MainActivity.this.isDestroyed())
-                    Toast.makeText(MainActivity.this, "Error: Failed to turn on channels", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "Error: Failed to set output to JSON", Toast.LENGTH_LONG).show();
             }
         });
     }
 
-    private void startRecording() {
-        Call<Void> recordRequest = mCytonService.executeCommand(new CommandRequestModel(RECORD_5_MIN_COMMAND));
+    private void startRecord() {
+        Call<Void> recordRequest = mCytonService.executeCommand(
+                new CommandRequestModel(RECORD_5_MIN_COMMAND)
+        );
+
+        mRetryCounter = 3;
         recordRequest.enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (!MainActivity.this.isDestroyed()) {
-                    if (response.isSuccessful()) {
-                        Toast.makeText(MainActivity.this, "Started recording", Toast.LENGTH_LONG).show();
-                    } else {
+                    if (response.isSuccessful())
+                        startStreamingAndOpenChannels();
+                    else {
+                        if (mRetryCounter > 0) {
+                            mRetryCounter--;
+                            call.clone().enqueue(this);
+                            return;
+                        }
                         Toast.makeText(MainActivity.this, "Failed to start recording", Toast.LENGTH_LONG).show();
                         try {
                             Log.e("CytonError", response.errorBody().string() + " ");
-                        } catch (IOException e) {}
+                        } catch (IOException e) {
+                        }
                     }
                 }
             }
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
-                Log.e("CytonError", "Request failed", t);
-                if (!MainActivity.this.isDestroyed()) {
-                    Toast.makeText(MainActivity.this, "Error: Failed to start recording", Toast.LENGTH_LONG).show();
+                if (mRetryCounter > 0) {
+                    mRetryCounter--;
+                    call.clone().enqueue(this);
+                    return;
                 }
+
+                Log.e("CytonError", "Request failed", t);
+                if (!MainActivity.this.isDestroyed())
+                    Toast.makeText(MainActivity.this, "Error: Failed to start recording", Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private void startStreamingAndOpenChannels() {
+        Call<Void> attachRequest = mCytonService.executeCommand(
+                new CommandRequestModel(START_STREAM_COMMAND + OPEN_CHANNELS_COMMAND)
+        );
+
+        mRetryCounter = 3;
+        attachRequest.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (!MainActivity.this.isDestroyed()) {
+                    if (response.isSuccessful())
+                        Toast.makeText(MainActivity.this, "Started recording", Toast.LENGTH_LONG).show();
+                    else {
+                        if (mRetryCounter > 0) {
+                            mRetryCounter--;
+                            call.clone().enqueue(this);
+                            return;
+                        }
+                        Toast.makeText(MainActivity.this, "Failed to start stream and open channels", Toast.LENGTH_LONG).show();
+                        try {
+                            Log.e("CytonError", response.errorBody().string() + " ");
+                        } catch (IOException e) {
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                if (mRetryCounter > 0) {
+                    mRetryCounter--;
+                    call.clone().enqueue(this);
+                    return;
+                }
+
+                Log.e("CytonError", "Request failed", t);
+                if (!MainActivity.this.isDestroyed())
+                    Toast.makeText(MainActivity.this, "Error: Failed to start stream and open channels", Toast.LENGTH_LONG).show();
             }
         });
     }
 
     @OnClick(R.id.stop_recording_btn)
     public void onStopRecordingClick() {
-        Log.d(TAG, "stop_recording_btn");
-        if (!checkRetrofitClient())
+        if (mDeviceSpinner.getSelectedItem() == null) {
+            Toast.makeText(this, "Please select a device to stop recording.", Toast.LENGTH_LONG).show();
             return;
+        }
 
-        Call<Void> stopRecordRequest = mCytonService.executeCommand(new CommandRequestModel(STOP_RECORD_COMMAND));
-        stopRecordRequest.enqueue(new Callback<Void>() {
+        if (!checkRetrofitClient()) {
+            return;
+        }
+
+        checkStatusAndStop();
+    }
+
+    private void checkStatusAndStop() {
+        Call<StatusResponseModel> statusRequest = mCytonService.checkStatus(
+                new CommandRequestModel(STATUS_COMMAND)
+        );
+        mRetryCounter = 3;
+        statusRequest.enqueue(new Callback<StatusResponseModel>() {
             @Override
-            public void onResponse(Call<Void> call, Response<Void> response) {
+            public void onResponse(Call<StatusResponseModel> call, Response<StatusResponseModel> response) {
                 if (!MainActivity.this.isDestroyed()) {
                     if (response.isSuccessful()) {
-                        stopStreaming();
+                        if (response.body().isRecording()) {
+                            stopRecordingAndStreaming(true);
+                        } else if (response.body().isStreaming()) {
+                            stopRecordingAndStreaming(false);
+                        } else {
+                            Toast.makeText(MainActivity.this, "Board is not recording", Toast.LENGTH_LONG).show();
+                        }
                     } else {
-                        Toast.makeText(MainActivity.this, "Failed to stop recording.", Toast.LENGTH_LONG).show();
+                        if (mRetryCounter > 0) {
+                            mRetryCounter--;
+                            call.clone().enqueue(this);
+                            return;
+                        }
+
+                        Toast.makeText(MainActivity.this, "Failed to get status", Toast.LENGTH_LONG).show();
                         try {
                             Log.e("CytonError", response.errorBody().string() + " ");
-                        } catch (IOException e) {}
+                        } catch (IOException e) {
+                        }
                     }
                 }
             }
 
             @Override
-            public void onFailure(Call<Void> call, Throwable t) {
+            public void onFailure(Call<StatusResponseModel> call, Throwable t) {
+                if (mRetryCounter > 0) {
+                    mRetryCounter--;
+                    call.clone().enqueue(this);
+                    return;
+                }
+
                 Log.e("CytonError", "Request failed", t);
                 if (!MainActivity.this.isDestroyed()) {
-                    Toast.makeText(MainActivity.this, "Error: Failed to stop recording.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "Error: Failed to get status", Toast.LENGTH_LONG).show();
                 }
             }
         });
     }
 
-    private void stopStreaming() {
-        Call<Void> stopStreamRequest = mCytonService.stopStreaming();
-        stopStreamRequest.enqueue(new Callback<Void>() {
+    private void stopRecordingAndStreaming(boolean isRecording) {
+        String command = TURN_CHANNELS_OFF_COMMAND +
+                STOP_STREAM_COMMAND +
+                (isRecording ? STOP_RECORD_COMMAND : "");
+
+        Call<Void> stopRecordRequest = mCytonService.executeCommand(
+                new CommandRequestModel(command));
+        mRetryCounter = 3;
+        stopRecordRequest.enqueue(new Callback<Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (!MainActivity.this.isDestroyed()) {
                     if (response.isSuccessful()) {
-                        Toast.makeText(MainActivity.this, "Successfully stopped recording.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(MainActivity.this, "Stream stopped", Toast.LENGTH_LONG).show();
                     } else {
-                        Toast.makeText(MainActivity.this, "Failed to stop streaming.", Toast.LENGTH_LONG).show();
+                        if (mRetryCounter > 0) {
+                            mRetryCounter--;
+                            call.clone().enqueue(this);
+                            return;
+                        }
+
+                        Toast.makeText(MainActivity.this, "Failed to stop", Toast.LENGTH_LONG).show();
                         try {
                             Log.e("CytonError", response.errorBody().string() + " ");
-                        } catch (IOException e) {}
+                        } catch (IOException e) {
+                        }
                     }
                 }
             }
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
+                if (mRetryCounter > 0) {
+                    mRetryCounter--;
+                    call.clone().enqueue(this);
+                    return;
+                }
+
                 Log.e("CytonError", "Request failed", t);
                 if (!MainActivity.this.isDestroyed()) {
-                    Toast.makeText(MainActivity.this, "Error: Failed to stop streaming.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "Error: Failed to stop", Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -324,7 +514,7 @@ public class MainActivity extends AppCompatActivity {
         DiscoveryRequest networkDevice = DiscoveryRequest.builder()
                 .serviceType(serviceType)
                 .build();
-        client.discoverServices(networkDevice, new DiscoveryListener() {    // automatically called every INTERVAL_BETWEEN_REQUESTS ms
+        mClient.discoverServices(networkDevice, new DiscoveryListener() {    // automatically called every INTERVAL_BETWEEN_REQUESTS ms
             @Override
             public void onServiceDiscovered(SsdpService service) {
                 Log.i(TAG, "Service discovered: " + service);
@@ -371,6 +561,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        client.stopDiscovery();
+        mClient.stopDiscovery();
     }
 }
