@@ -54,7 +54,6 @@ void loop() {
           sdProcessChar('j');                   // stop recording to SD card
         }
         else {
-          // Send to the board library
           sdProcessChar('S');                   // start recording to SD card for up to 15 minutes
           board.streamStart();                  // start streaming
           board.streamSafeChannelActivate(1);
@@ -70,9 +69,14 @@ void loop() {
       previousPushButtonValue = pushButtonValue;
     }
     
-    if (board.streaming == false)
+    if (!board.streaming)
       ledState = HIGH;
-    else if (millis() > (previousMillis + 500))
+    else if (SDfileOpen && board.streaming && millis() > (previousMillis + 500))
+    {
+      ledState = !ledState;
+      previousMillis = millis();
+    }
+    else if (!SDfileOpen && board.streaming && millis() > (previousMillis + 1000))
     {
       ledState = !ledState;
       previousMillis = millis();
