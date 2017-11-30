@@ -87,3 +87,35 @@ param(
 	Write-Host('POST /command {"command":"' + $command + '"}')
 	Invoke-WebRequest -Uri http://$script:ip/command -Method POST -ContentType "application/json" -Body "{'command':'$command'}"
 }
+
+function get {
+param(
+	[Parameter(Mandatory=$true)]
+	[string]$path
+	)
+	Write-Host('GET /' + $path)
+	Invoke-WebRequest -Uri http://$script:ip/$path -Method GET
+}
+
+function command {
+param(
+	[Parameter(Mandatory=$true)]
+	[string]$path,
+	[string]$body
+	)
+	Write-Host('POST /command {"command":"' + $command + '"}')
+	if ($PSBoundParameters.ContainsKey('body')) {
+		Invoke-WebRequest -Uri http://$script:ip/$path -Method POST -ContentType "application/json" -Body "$body"
+	} else {
+		Invoke-WebRequest -Uri http://$script:ip/$path -Method POST
+	}
+}
+
+function delete {
+param(
+	[Parameter(Mandatory=$true)]
+	[string]$path
+	)
+	Write-Host('DELETE /' + $path)
+	Invoke-WebRequest -Uri http://$script:ip/$path -Method DELETE
+}
