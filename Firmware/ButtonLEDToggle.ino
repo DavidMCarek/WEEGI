@@ -58,7 +58,7 @@ void loop() {
     }
     
     digitalWrite(LED, ledState); // toggle the LED
-  
+    
   if (board.streaming) {
     if (board.channelDataAvailable) {
       // Read from the ADS(s), store data, set channelDataAvailable flag to false
@@ -97,6 +97,9 @@ void loop() {
 
     // Send to the board library
     board.processChar(newChar);
+
+    // Send board status info
+    processChar(newChar);
   }
 
   if (board.hasDataSerial1()) {
@@ -108,6 +111,9 @@ void loop() {
 
     // Read one char and process it
     board.processChar(newChar);
+
+    // Send board status info
+    processChar(newChar);
   }
 
   // Call the loop function on the board
@@ -125,6 +131,9 @@ void loop() {
 
     // Send to the board library
     board.processCharWifi(newChar);
+
+    // Send board status info
+    processChar(newChar);
   }
 
   if (!wifi.sentGains) {
@@ -132,4 +141,22 @@ void loop() {
       wifi.sendGains(board.numChannels, board.getGains());
     }
   }
+}
+
+char processChar(char character) {
+    switch (character)
+    {
+      case 'n':   // is board streaming
+        wifi.sendStringLast(board.streaming
+          ? "{\"streaming\": true}"
+          : "{\"streaming\": false}");
+        break;
+      case 'N': // is board recording?
+        wifi.sendStringLast(SDfileOpen
+          ? "{\"recording\": true}"
+          : "{\"recording\": false}");
+        break;
+    }
+    
+    return character;
 }
