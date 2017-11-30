@@ -41,10 +41,31 @@ void loop() {
     {
       previousMillis = millis();                // debounce the button
       if (pushButtonValue == HIGH)              // button was just pressed
-        if (board.streaming)
-          board.streamStop();
-        else
-          board.streamStart();
+        if (board.streaming) {
+          board.streamSafeChannelDeactivate(1);
+          board.streamSafeChannelDeactivate(2);
+          board.streamSafeChannelDeactivate(3);
+          board.streamSafeChannelDeactivate(4);
+          board.streamSafeChannelDeactivate(5);
+          board.streamSafeChannelDeactivate(6);
+          board.streamSafeChannelDeactivate(7);
+          board.streamSafeChannelDeactivate(8);
+          board.streamStop();                   // stop streaming
+          sdProcessChar('j');                   // stop recording to SD card
+        }
+        else {
+          // Send to the board library
+          sdProcessChar('S');                   // start recording to SD card for up to 15 minutes
+          board.streamStart();                  // start streaming
+          board.streamSafeChannelActivate(1);
+          board.streamSafeChannelActivate(2);
+          board.streamSafeChannelActivate(3);
+          board.streamSafeChannelActivate(4);
+          board.streamSafeChannelActivate(5);
+          board.streamSafeChannelActivate(6);
+          board.streamSafeChannelActivate(7);
+          board.streamSafeChannelActivate(8);
+        }
         
       previousPushButtonValue = pushButtonValue;
     }
