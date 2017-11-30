@@ -60,54 +60,6 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/device_text"/>
 
-
-                <TextView
-                    android:id="@+id/mac_address_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="8dp"
-                    android:text="MAC Address"
-                    app:layout_constraintTop_toBottomOf="@id/device_spinner"
-                    app:layout_constraintLeft_toLeftOf="@id/device_spinner"/>
-
-                <TextView
-                    android:id="@+id/mac_address_value"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="8dp"
-                    app:layout_constraintTop_toBottomOf="@id/device_spinner"
-                    app:layout_constraintLeft_toRightOf="@id/mac_address_text"/>
-
-                <TextView
-                    android:id="@+id/ip_address_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="8dp"
-                    app:layout_constraintTop_toBottomOf="@id/mac_address_text"
-                    app:layout_constraintLeft_toLeftOf="@id/device_spinner"
-                    android:text="IP Address"/>
-
-                <TextView
-                    android:id="@+id/ip_address_value"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginTop="8dp"
-                    app:layout_constraintTop_toBottomOf="@id/mac_address_value"
-                    app:layout_constraintLeft_toRightOf="@id/mac_address_text"
-                    />
-
                 <TextView
                     android:id="@+id/is_recording_text"
                     android:layout_width="wrap_content"
@@ -116,7 +68,7 @@
                     android:layout_marginEnd="8dp"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
-                    app:layout_constraintTop_toBottomOf="@id/ip_address_text"
+                    app:layout_constraintTop_toBottomOf="@id/device_spinner"
                     app:layout_constraintLeft_toLeftOf="@id/device_spinner"
                     android:text="Recording"
                     />
@@ -129,8 +81,8 @@
                     android:layout_marginEnd="8dp"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
-                    app:layout_constraintTop_toBottomOf="@id/ip_address_value"
-                    app:layout_constraintLeft_toRightOf="@id/mac_address_text"
+                    app:layout_constraintTop_toBottomOf="@id/device_spinner"
+                    app:layout_constraintLeft_toRightOf="@id/is_recording_text"
                     />
 
                 <TextView
@@ -155,7 +107,7 @@
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="8dp"
                     app:layout_constraintTop_toBottomOf="@id/is_recording_value"
-                    app:layout_constraintLeft_toRightOf="@id/mac_address_text"
+                    app:layout_constraintLeft_toRightOf="@id/is_recording_text"
                     />
 
             </android.support.constraint.ConstraintLayout>
