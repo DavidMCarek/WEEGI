@@ -58,6 +58,12 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.cloud_server_password)
     protected EditText mServerPassword;
 
+    @BindView(R.id.is_recording_value)
+    protected TextView mIsRecording;
+
+    @BindView(R.id.is_streaming_value)
+    protected TextView mIsStreaming;
+
     private static final String OPENBCI_DEVICE_TYPE = "urn:schemas-upnp-org:device:Basic:1";
     private static final String TAG = "com.seniordesign.weegi";
     private static final long UPDATE_LIST_TIME_MILLIS = 5000L;
@@ -102,6 +108,7 @@ public class MainActivity extends AppCompatActivity {
 
         mClient = new WEEGiSsdpClientImpl();
         setupDeviceRefreshTimer();
+        setupDeviceStatusTimer();
     }
 
     private void setupDeviceRefreshTimer() {
@@ -139,6 +146,21 @@ public class MainActivity extends AppCompatActivity {
         };
 
         mListHandler.postDelayed(mRemoveExpiredDevicesTimer, UPDATE_LIST_TIME_MILLIS);
+    }
+
+    private void setupDeviceStatusTimer() {
+        Handler handler = new Handler();
+        int delay = 3000; //milliseconds
+
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                if (mDeviceSpinner.getSelectedItem() != null && checkRetrofitClient()) {
+                    checkStatus();
+                }
+
+                handler.postDelayed(this, delay);
+            }
+        }, delay);
     }
 
     @OnItemSelected(R.id.device_spinner)
@@ -362,19 +384,19 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (!MainActivity.this.isDestroyed()) {
                     if (response.isSuccessful())
-                        Toast.makeText(MainActivity.this, "Started recording", Toast.LENGTH_LONG).show();
-                    else {
-                        if (mRetryCounter > 0) {
-                            mRetryCounter--;
-                            call.clone().enqueue(this);
-                            return;
-                        }
-                        Toast.makeText(MainActivity.this, "Failed to start stream and open channels", Toast.LENGTH_LONG).show();
-                        try {
-                            Log.e("CytonError", response.errorBody().string() + " ");
-                        } catch (IOException e) {
-                        }
+                        return;
+
+                    if (mRetryCounter > 0) {
+                        mRetryCounter--;
+                        call.clone().enqueue(this);
+                        return;
                     }
+                    Toast.makeText(MainActivity.this, "Failed to start stream and open channels", Toast.LENGTH_LONG).show();
+                    try {
+                        Log.e("CytonError", response.errorBody().string() + " ");
+                    } catch (IOException e) {
+                    }
+
                 }
             }
 
@@ -389,6 +411,33 @@ public class MainActivity extends AppCompatActivity {
                 Log.e("CytonError", "Request failed", t);
                 if (!MainActivity.this.isDestroyed())
                     Toast.makeText(MainActivity.this, "Error: Failed to start stream and open channels", Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private void checkStatus() {
+        Call<StatusResponseModel> statusRequest = mCytonService.checkStatus(
+                new CommandRequestModel(STATUS_COMMAND)
+        );
+
+        statusRequest.enqueue(new Callback<StatusResponseModel>() {
+            @Override
+            public void onResponse(Call<StatusResponseModel> call, Response<StatusResponseModel> response) {
+                if (!MainActivity.this.isDestroyed()) {
+                    if (response.isSuccessful()) {
+                        mIsStreaming.setText(response.body().isStreaming() + "");
+                        mIsRecording.setText(response.body().isRecording() + "");
+                    } else {
+                        mIsStreaming.setText("");
+                        mIsRecording.setText("");
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<StatusResponseModel> call, Throwable t) {
+                mIsStreaming.setText("");
+                mIsRecording.setText("");
             }
         });
     }
@@ -468,21 +517,19 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (!MainActivity.this.isDestroyed()) {
-                    if (response.isSuccessful()) {
-                        Toast.makeText(MainActivity.this, "Stream stopped", Toast.LENGTH_LONG).show();
-                    } else {
-                        if (mRetryCounter > 0) {
-                            mRetryCounter--;
-                            call.clone().enqueue(this);
-                            return;
-                        }
+                    if (response.isSuccessful())
+                        return;
 
-                        Toast.makeText(MainActivity.this, "Failed to stop", Toast.LENGTH_LONG).show();
-                        try {
-                            Log.e("CytonError", response.errorBody().string() + " ");
-                        } catch (IOException e) {
-                        }
+                    if (mRetryCounter > 0) {
+                        mRetryCounter--;
+                        call.clone().enqueue(this);
+                        return;
                     }
+
+                    Toast.makeText(MainActivity.this, "Failed to stop", Toast.LENGTH_LONG).show();
+                    try {
+                        Log.e("CytonError", response.errorBody().string() + " ");
+                    } catch (IOException e) {}
                 }
             }
 
