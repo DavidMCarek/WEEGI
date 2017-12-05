@@ -40,5 +40,4 @@ dependencies {
 
     //ssdp-client
     compile 'io.resourcepool:ssdp-client:1.2.0'
-
 }

@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit;
 public class WEEGiSsdpClientImpl extends SsdpClientImpl {
 
     // Interval in ms between subsequent discovery requests
-    private static final long INTERVAL_BETWEEN_REQUESTS = 10000;
+    private static final long INTERVAL_BETWEEN_REQUESTS = 3000;
 
     private enum State {
         ACTIVE, IDLE, STOPPING

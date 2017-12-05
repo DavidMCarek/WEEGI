@@ -193,6 +193,7 @@ public class MainActivity extends AppCompatActivity {
         Call<StatusResponseModel> statusRequest = mCytonService.checkStatus(
                 new CommandRequestModel(STATUS_COMMAND)
         );
+
         mRetryCounter = 3;
         statusRequest.enqueue(new Callback<StatusResponseModel>() {
             @Override
