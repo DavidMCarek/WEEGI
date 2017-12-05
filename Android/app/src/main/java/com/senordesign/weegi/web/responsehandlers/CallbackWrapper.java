@@ -1,7 +1,10 @@
 package com.senordesign.weegi.web.responsehandlers;
 
-import android.app.Activity;
+import android.util.Log;
 
+import java.io.IOException;
+
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -13,18 +16,19 @@ import retrofit2.Response;
 public abstract class CallbackWrapper<T> implements Callback<T> {
 
     private int mRetryCount = 3;
-    private Activity mContext;
 
     public abstract void onResponseSuccess(T responseBody);
-    public abstract void onResponseFailure(Call<T> call);
+    public abstract void onResponseFailure();
     public abstract void onResponseError();
 
     public void setRetryLimit(int retryCount) {
         mRetryCount = retryCount;
     }
 
-    public void setContext(Activity context) {
-        mContext = context;
+    private void logErrorResponse(ResponseBody responseBody) {
+        try {
+            Log.e("WebCallback", responseBody.string());
+        } catch (IOException e) {}
     }
 
     @Override
@@ -35,12 +39,19 @@ public abstract class CallbackWrapper<T> implements Callback<T> {
             mRetryCount--;
             call.clone().enqueue(this);
         } else {
-            onResponseFailure(call);
+            onResponseFailure();
+            logErrorResponse(response.errorBody());
         }
     }
 
     @Override
     public void onFailure(Call<T> call, Throwable t) {
+        if (mRetryCount > 0) {
+            mRetryCount--;
+            call.clone().enqueue(this);
+        }
+
         onResponseError();
+        Log.e("WebCallback", "Request failed", t);
     }
 }

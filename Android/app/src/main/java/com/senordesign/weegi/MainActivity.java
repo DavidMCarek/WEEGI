@@ -17,11 +17,13 @@ import com.senordesign.weegi.web.models.CommandRequestModel;
 import com.senordesign.weegi.web.models.MQTTRequestModel;
 import com.senordesign.weegi.web.models.MQTTResponseModel;
 import com.senordesign.weegi.web.models.StatusResponseModel;
+import com.senordesign.weegi.web.responsehandlers.CallbackWrapper;
 import com.senordesign.weegi.web.services.CytonService;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeMap;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -90,6 +92,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String STOP_RECORD_COMMAND = "j";
 
     private static final String STATUS_COMMAND = "n";
+
+    private TreeMap<Call, CallbackWrapper> mCallQueue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -185,61 +189,37 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Cloud server url required for cloud recording.", Toast.LENGTH_LONG).show();
             return;
         }
-
-        checkStatusAndStart();
     }
 
     private void checkStatusAndStart() {
-        Call<StatusResponseModel> statusRequest = mCytonService.checkStatus(
-                new CommandRequestModel(STATUS_COMMAND)
-        );
 
-        mRetryCounter = 3;
-        statusRequest.enqueue(new Callback<StatusResponseModel>() {
+        Call<StatusResponseModel> statusRequest = mCytonService.checkStatus(new CommandRequestModel(STATUS_COMMAND));
+        CallbackWrapper<StatusResponseModel> statusResponseHandler = new CallbackWrapper<StatusResponseModel>() {
             @Override
-            public void onResponse(Call<StatusResponseModel> call, Response<StatusResponseModel> response) {
-                if (!MainActivity.this.isDestroyed()) {
-                    if (response.isSuccessful()) {
-                        if (response.body().isRecording() || response.body().isStreaming()) {
-                            Toast.makeText(MainActivity.this, "Device is already recording or streaming. Please stop first.", Toast.LENGTH_LONG).show();
-                        } else {
-                            if (mCloudCheckbox.isChecked()) {
-                                setupMQTT();
-                            } else {
-                                startRecord();
-                            }
-                        }
-
-                    } else {
-                        if (mRetryCounter > 0) {
-                            mRetryCounter--;
-                            call.clone().enqueue(this);
-                            return;
-                        }
-
-                        Toast.makeText(MainActivity.this, "Failed to get status", Toast.LENGTH_LONG).show();
-                        try {
-                            Log.e("CytonError", response.errorBody().string() + " ");
-                        } catch (IOException e) {
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<StatusResponseModel> call, Throwable t) {
-                if (mRetryCounter > 0) {
-                    mRetryCounter--;
-                    call.clone().enqueue(this);
+            public void onResponseSuccess(StatusResponseModel responseBody) {
+                if (responseBody.isRecording() || responseBody.isStreaming()) {
+                    toast("Device is already recording or streaming. Please stop first.");
                     return;
                 }
 
-                Log.e("CytonError", "Request failed", t);
-                if (!MainActivity.this.isDestroyed()) {
-                    Toast.makeText(MainActivity.this, "Error: Failed to get status", Toast.LENGTH_LONG).show();
-                }
+                if (mCloudCheckbox.isChecked())
+                    setupMQTT();
+                else
+                    startRecord();
             }
-        });
+ 
+            @Override
+            public void onResponseFailure() {
+                toast("Failed to get status");
+            }
+
+            @Override
+            public void onResponseError() {
+                toast("Error: failed to get status");
+            }
+        };
+
+        statusRequest.enqueue(statusResponseHandler);
     }
 
     private void setupMQTT() {
@@ -604,6 +584,10 @@ public class MainActivity extends AppCompatActivity {
                 .build();
 
         mCytonService = mRetrofit.create(CytonService.class);
+    }
+
+    private void toast(String msg) {
+        Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
     }
 
     @Override
