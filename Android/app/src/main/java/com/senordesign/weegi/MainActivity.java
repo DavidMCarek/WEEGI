@@ -160,7 +160,8 @@ public class MainActivity extends AppCompatActivity {
                     checkStatus();
                 }
 
-                handler.postDelayed(this, delay);
+                if (!isDestroyed())
+                    handler.postDelayed(this, delay);
             }
         }, delay);
     }
