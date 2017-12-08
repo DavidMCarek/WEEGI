@@ -21,10 +21,8 @@ import com.senordesign.weegi.web.models.StatusResponseModel;
 import com.senordesign.weegi.web.responsehandlers.CallbackWrapper;
 import com.senordesign.weegi.web.services.CytonService;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeMap;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -36,8 +34,6 @@ import io.resourcepool.jarpic.model.DiscoveryRequest;
 import io.resourcepool.jarpic.model.SsdpService;
 import io.resourcepool.jarpic.model.SsdpServiceAnnouncement;
 import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
