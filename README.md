@@ -1,4 +1,4 @@
-# WEEGI ![WEEGi](https://raw.githubusercontent.com/DavidMCarek/WEEGI/master/Android/app/src/main/res/mipmap-hdpi/ic_launcher_round.png) 
+# WEEGI 
 This project allows the user to interface with the Cyton from their Android device over wifi. 
 
 
